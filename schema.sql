@@ -20,8 +20,8 @@ CREATE TABLE posts (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    PRIMARY KEY(id),
-    FOREIGN KEY(user_id) REFERENCES users(id)
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE comments (
@@ -33,8 +33,8 @@ CREATE TABLE comments (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (post_id) REFERENCES posts(id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE ,
+    FOREIGN KEY (post_id) REFERENCES posts (id) ON DELETE CASCADE 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE likes (
@@ -42,23 +42,24 @@ CREATE TABLE likes (
     post_id INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    UNIQUE(user_id, post_id),
-    FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(post_id) REFERENCES posts(id)
+    PRIMARY KEY (user_id, post_id),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE ,
+    FOREIGN KEY (post_id) REFERENCES posts (id) ON DELETE CASCADE 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE follow_requests (
     id INT NOT NULL AUTO_INCREMENT,
     requester_id INT NOT NULL,
     receiver_id INT NOT NULL,
-    status ENUM('pending', 'accepted', 'rejected') NOT NULL,
+    status ENUM ('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    PRIMARY KEY(id),
-    UNIQUE(requester_id, receiver_id),
-    FOREIGN KEY(requester_id) REFERENCES users(id),
-    FOREIGN KEY(receiver_id) REFERENCES users(id)
+    PRIMARY KEY (id),
+    UNIQUE (requester_id, receiver_id),
+    FOREIGN KEY (requester_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users (id) ON DELETE CASCADE,
+    CHECK (requester_id <> receiver_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE follows (
@@ -66,7 +67,8 @@ CREATE TABLE follows (
     followee_id INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    UNIQUE (follower_id, followee_id),
-    FOREIGN KEY (follower_id) REFERENCES users(id),
-    FOREIGN KEY (followee_id) REFERENCES users(id)
+    PRIMARY KEY (follower_id, followee_id),
+    FOREIGN KEY (follower_id) REFERENCES users (id) ON DELETE CASCADE ,
+    FOREIGN KEY (followee_id) REFERENCES users (id) ON DELETE CASCADE,
+    CHECK (follower_id <> followee_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
