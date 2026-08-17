@@ -15,7 +15,12 @@ set(
 add_executable(social_network_backend
     src/main.cpp
     src/database/Database.cpp
-)
+    src/repositories/UserRepository.cpp
+    src/repositories/PostRepository.cpp
+    src/repositories/CommentRepository.cpp 
+    src/repositories/LikeRepository.cpp 
+    src/repositories/FollowRequestRepository.cpp 
+    src/repositories/FollowRepository.cpp "src/utils/DateTimeUtils.cpp")
 
 target_include_directories(social_network_backend
     PRIVATE
