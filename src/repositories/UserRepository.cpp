@@ -1,0 +1,117 @@
+#include "UserRepository.hpp"
+#include "../utils/DateTimeUtils.hpp"
+#include "../utils/UserMapper.hpp"
+#include <mysqlx/xdevapi.h>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
+#include <stdexcept>
+ 
+UserRepository::UserRepository(Database& database) : database_(database) {}
+
+std::optional<User> UserRepository::getById(int userId){
+    try {
+         mysqlx::Session& session = database_.getSession();
+         mysqlx::SqlResult result = session.sql("SELECT id, username, email, password_hash, "
+                                                "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
+                                                "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
+                                                "FROM users WHERE id = ?").bind(userId).execute();
+         mysqlx::Row row = result.fetchOne();
+         if (!row) {
+             return std::nullopt;
+         }
+
+         User user = mapRowToUser(row);
+
+         return user;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("UserRepository: Failed to retrieve user by user id: " + std::string(error.what()));
+    }
+}
+
+std::optional<User> UserRepository::getByUsername(const std::string& username) {
+    try {
+         mysqlx::Session& session = database_.getSession();
+         mysqlx::SqlResult result = session.sql("SELECT id, username, email, password_hash, "
+                                                "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
+                                                "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
+                                                "FROM users "
+                                                "WHERE username = ?").bind(username).execute();
+         mysqlx::Row row = result.fetchOne();
+         if (!row)
+             return std::nullopt;
+
+         User user = mapRowToUser(row);
+
+         return user;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("UserRepository: Failed to retrieve user by username: " + std::string(error.what()));
+    }
+}
+
+std::optional<User> UserRepository::getByEmail(const std::string& email) {
+    try {
+         mysqlx::Session& session = database_.getSession();
+         mysqlx::SqlResult result = session.sql("SELECT id, username, email, password_hash, "
+                                                "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
+                                                "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
+                                                "FROM users "
+                                                "WHERE email = ?").bind(email).execute();
+         mysqlx::Row row = result.fetchOne();
+         if (!row)
+             return std::nullopt;
+
+         User user = mapRowToUser(row);
+
+         return user;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("UserRepository: Failed to retrieve user by email: " + std::string(error.what()));
+    }
+}
+
+void UserRepository::create(const std::string& username,
+                            const std::string& email,
+                            const std::string& passwordHash) {
+    try {
+         mysqlx::Session& session = database_.getSession();
+         session.sql("INSERT INTO users (username, email, password_hash) "
+                     "VALUES (?, ?, ?)").bind(username, email, passwordHash).execute();
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("UserRepository: Failed to create user: " + std::string(error.what()));
+    }
+}
+
+bool UserRepository::update(int userId,
+                            const std::string& username,
+                            const std::string& email,
+                            const std::string& passwordHash){
+    try {
+         mysqlx::Session& session = database_.getSession();
+         mysqlx::SqlResult result = session.sql("UPDATE users "
+                                                "SET username = ?, email = ?, password_hash = ? "
+                                                "WHERE id = ?").bind(username, email, passwordHash, userId).execute();
+
+         return result.getAffectedItemsCount() > 0;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("UserRepository: Failed to update user: " + std::string(error.what()));
+    }
+}
+
+bool UserRepository::remove(int userId) {
+    try {
+         mysqlx::Session& session = database_.getSession();
+         mysqlx::SqlResult result = session.sql("DELETE FROM users "
+                                                "WHERE id = ?").bind(userId).execute();
+
+         return result.getAffectedItemsCount() > 0;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("UserRepository: Failed to remove user: " + std::string(error.what()));
+    }
+}
+
