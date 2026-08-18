@@ -14,9 +14,7 @@ public:
 	FollowRepository(Database& database);
 
 	void follow(int followerId, int followeeId);
-
 	bool unfollow(int followerId, int followeeId);
-
 	bool isFollowing(int followerId, int followeeId);
 
 	std::vector<User> getFollowers(int userId);

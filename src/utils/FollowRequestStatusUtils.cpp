@@ -18,13 +18,10 @@ std::string followRequestStatusToString(FollowRequestStatus status) {
     switch (status) {
     case FollowRequestStatus::Pending:
         return "pending";
-
     case FollowRequestStatus::Accepted:
         return "accepted";
-
     case FollowRequestStatus::Rejected:
         return "rejected";
-
     default:
         throw std::runtime_error("Invalid follow request status");
     }

@@ -16,10 +16,10 @@ public:
 	FollowRequestRepository(Database& database);
 
 	void create(int requesterId, int receiverId);
+	bool update(int followRequestId, FollowRequestStatus status);
 
 	std::vector<FollowRequest> getByRequesterId(int requesterId);
 	std::vector<FollowRequest> getByReceiverId(int receiverId);
 	std::optional<FollowRequest> getById(int followRequestId);
 
-	bool update(int followRequestId, FollowRequestStatus status);
 };

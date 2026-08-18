@@ -4,7 +4,6 @@
 User mapRowToUser(const mysqlx::Row& row)
 {
     User user;
-
     user.id = static_cast<int>(row[0]);
     user.username = static_cast<std::string>(row[1]);
     user.email = static_cast<std::string>(row[2]);

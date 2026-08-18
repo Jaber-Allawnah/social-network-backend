@@ -16,6 +16,5 @@ public:
 	std::vector<User> getByPostId(int postId);
 
 	void like(int userId, int postId);
-
 	bool unlike(int userId, int postId);
 };

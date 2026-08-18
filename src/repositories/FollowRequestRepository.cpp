@@ -96,15 +96,13 @@ std::optional<FollowRequest> FollowRequestRepository::getById(int followRequestI
 
 bool FollowRequestRepository::update(int followRequestId, FollowRequestStatus status) {
     try {
-        mysqlx::Session& session = database_.getSession();
-        std::string statusValue = followRequestStatusToString(status);
-        mysqlx::SqlResult result = session.sql("UPDATE follow_requests "
-                                               "SET status = ? "
-                                               "WHERE id = ?")
-                                          .bind(statusValue, followRequestId)
-                                          .execute();
+         mysqlx::Session& session = database_.getSession();
+         std::string statusValue = followRequestStatusToString(status);
+         mysqlx::SqlResult result = session.sql("UPDATE follow_requests "
+                                                "SET status = ? "
+                                                "WHERE id = ?").bind(statusValue, followRequestId).execute();
 
-        return result.getAffectedItemsCount() > 0;
+         return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("Failed to update follow request status " + std::string(error.what()));

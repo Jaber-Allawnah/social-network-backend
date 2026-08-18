@@ -18,8 +18,6 @@ public:
 	std::optional<Comment> getById(int commentId);
 
     void create(const std::string& content, int userId, int postId);
-
 	bool update(int commentId, const std::string& content);
-
 	bool remove(int commentId);
 };
