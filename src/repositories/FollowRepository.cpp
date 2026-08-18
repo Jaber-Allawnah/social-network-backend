@@ -1,52 +1,94 @@
 #include "./FollowRepository.hpp"
 #include "../utils/DateTimeUtils.hpp"
+#include "../utils/UserMapper.hpp"
+#include <stdexcept>
 
-FollowRepository::FollowRepository(Database& datebase) : database_(datebase) {}
+FollowRepository::FollowRepository(Database& database) : database_(database) {}
 
-void FollowRepository::addFollow(int followerId, int followeeId) {
-    mysqlx::Session& session = database_.getSession();
-
-    session.sql("INSERT INTO follows (follower_id, followee_id) "
-                "VALUES (?, ?)").bind(followerId, followeeId).execute();
-}
-
-void FollowRepository::deleteFollow(int followerId, int followeeId) {
-    mysqlx::Session& session = database_.getSession();
-
-    session.sql("DELETE FROM follows "
-                "WHERE follower_id = ? AND followee_id = ?").bind(followerId, followeeId).execute();
-}
-
-std::vector<int> FollowRepository::getFollowerIds(int userId) {
-    mysqlx::Session& session = database_.getSession();
-    
-    mysqlx::SqlResult result = session.sql("SELECT follower_id "
-                                           "FROM follows "
-                                           "WHERE followee_id = ?").bind(userId).execute();
-
-    auto rows = result.fetchAll();
-    std::vector<int> followersIds;
-
-    for (const mysqlx::Row& row : rows) {
-        followersIds.push_back(static_cast<int>(row[0]));
+void FollowRepository::follow(int followerId, int followeeId) {
+    try {
+        mysqlx::Session& session = database_.getSession();
+        session.sql("INSERT INTO follows (follower_id, followee_id) "
+            "VALUES (?, ?)").bind(followerId, followeeId).execute();
     }
-
-    return followersIds;
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("Failed follow user" + std::string(error.what()));
+    }
 }
 
-std::vector<int> FollowRepository::getFollowingIds(int userId) {
-    mysqlx::Session& session = database_.getSession();
+bool FollowRepository::unfollow(int followerId, int followeeId) {
+    try {
+        mysqlx::Session& session = database_.getSession();
+        mysqlx::SqlResult result = session.sql("DELETE FROM follows "
+                                               "WHERE follower_id = ? AND followee_id = ?")
+                                          .bind(followerId, followeeId)
+                                          .execute();
 
-    mysqlx::SqlResult result = session.sql("SELECT followee_id "
-                                           "FROM follows "
-                                           "WHERE follower_id = ?").bind(userId).execute();
-
-    auto rows = result.fetchAll();
-    std::vector<int> followeeIds;
-
-    for (const mysqlx::Row& row : rows) {
-        followeeIds.push_back(static_cast<int>(row[0]));
+        return result.getAffectedItemsCount() > 0;
     }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("Failed follow user" + std::string(error.what()));
+    }
+}
 
-    return followeeIds;
+std::vector<User> FollowRepository::getFollowers(int userId) {
+    try {
+        mysqlx::Session& session = database_.getSession();
+        mysqlx::SqlResult result = session.sql("SELECT u.id, u.username, u.email, u.password_hash, "
+                                               "DATE_FORMAT(u.created_at, '%Y-%m-%d %H:%i:%s'), "
+                                               "DATE_FORMAT(u.updated_at, '%Y-%m-%d %H:%i:%s') "
+                                               "FROM follows f "
+                                               "JOIN users u ON u.id = f.follower_id "
+                                               "WHERE f.followee_id = ?").bind(userId).execute();
+        auto rows = result.fetchAll();
+        std::vector<User> followers;
+        for (const mysqlx::Row& row : rows) {
+            followers.push_back(mapRowToUser(row));
+        }
+
+        return followers;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("Failed to retrieve followers " + std::string(error.what()));
+    }
+}
+
+std::vector<User> FollowRepository::getFollowing(int userId) {
+    try {
+        mysqlx::Session& session = database_.getSession();
+        mysqlx::SqlResult result = session.sql("SELECT u.id, u.username, u.email, u.password_hash, "
+                                               "DATE_FORMAT(u.created_at, '%Y-%m-%d %H:%i:%s'), "
+                                               "DATE_FORMAT(u.updated_at, '%Y-%m-%d %H:%i:%s') "
+                                               "FROM follows f "
+                                               "JOIN users u ON u.id = f.followee_id "
+                                               "WHERE f.follower_id = ?").bind(userId).execute();
+        auto rows = result.fetchAll();
+        std::vector<User> following;
+        for (const mysqlx::Row& row : rows) {
+            following.push_back(mapRowToUser(row));
+        }
+
+        return following;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("Failed retrieve following " + std::string(error.what()));
+    }
+}
+
+bool FollowRepository::isFollowing(int followerId, int followeeId) {
+    try {
+        mysqlx::Session& session = database_.getSession();
+        mysqlx::SqlResult result = session.sql("SELECT 1 "
+                                               "FROM follows "
+                                               "WHERE follower_id = ? AND followee_id = ?")
+                                          .bind(followerId, followeeId)
+                                          .execute();
+        mysqlx::Row row = result.fetchOne();
+        if (!row)
+            return false;
+        return true;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("Failed to check follow relationship " + std::string(error.what()));
+    }
 }

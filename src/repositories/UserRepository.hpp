@@ -4,7 +4,6 @@
 #include "../models/User.hpp"
 #include <mysqlx/xdevapi.h>
 #include <string>
-#include <chrono>
 #include <optional>
 #include <vector>
 
@@ -13,27 +12,21 @@ class UserRepository {
 private:
 	Database& database_;
 
-	User mapRowToUser(const mysqlx::Row&) const;
-
 public:
 	UserRepository(Database& database);
 
-	// Get Operations
-	std::optional<User> getById(int id);
-	std::vector<User> getAllUsers();
+	std::optional<User> getById(int userId);
+	std::optional<User> getByUsername(const std::string& username);
+	std::optional<User> getByEmail(const std::string& email);
 
-	// Add Operation
-	void addUser(const std::string& username,
+	void create(const std::string& username,
 				 const std::string& email,
 				 const std::string& passwordHash);
 	
-	// Update Operation
-	void updateUser(int id,
+	bool update(int userId,
 					const std::string& username,
 					const std::string& email,
 					const std::string& passwordHash);
 
-	// Delete Operation 
-	void deleteUser(int id);
-
+	bool remove(int userId);
 };	

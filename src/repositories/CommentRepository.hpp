@@ -3,26 +3,23 @@
 #include "../database/Database.hpp"
 #include "../models/Comment.hpp"
 #include <vector>
+#include <optional>
 #include <mysqlx/xdevapi.h>
 
 class CommentRepository {
 private:
 	Database& database_;
-
 	Comment mapRowToComment(const mysqlx::Row& row) const;
 
 public:
 	CommentRepository(Database& database);
 
-	// Get Operation
 	std::vector<Comment> getByPostId(int postId);
+	std::optional<Comment> getById(int commentId);
 
-	// Add Operation
-    void addComment(const std::string& content, int userId, int postId);
+    void create(const std::string& content, int userId, int postId);
 
-	// Update Operation
-	void updateComment(int id, const std::string& content);
+	bool update(int commentId, const std::string& content);
 
-	// Delete Operation
-	void deleteComment(int id);
+	bool remove(int commentId);
 };
