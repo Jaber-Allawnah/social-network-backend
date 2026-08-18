@@ -26,7 +26,7 @@ std::vector<User> LikeRepository::getByPostId(int postId) {
          return users;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to retrieve users who liked the post by post id " + std::string(error.what()));
+        throw std::runtime_error("LikeRepository: Failed to retrieve users who liked the post by post id: " + std::string(error.what()));
     }
 }
 
@@ -37,7 +37,7 @@ void LikeRepository::like(int userId, int postId) {
                      "VALUES (?, ?)").bind(userId, postId).execute();
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to like the post " + std::string(error.what()));
+        throw std::runtime_error("LikeRepository: Failed to like post: " + std::string(error.what()));
     }
 }
 
@@ -50,6 +50,6 @@ bool LikeRepository::unlike(int userId, int postId) {
          return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to unlike the post " + std::string(error.what()));
+        throw std::runtime_error("LikeRepository: Failed to unlike post: " + std::string(error.what()));
     }
 }

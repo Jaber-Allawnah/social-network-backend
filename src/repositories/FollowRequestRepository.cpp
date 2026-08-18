@@ -27,7 +27,7 @@ void FollowRequestRepository::create(int requesterId, int receiverId) {
                     "VALUES (?, ?)").bind(requesterId, receiverId).execute();
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to create follow request " + std::string(error.what()));
+        throw std::runtime_error("FollowRequestRepository: Failed to create follow request: " + std::string(error.what()));
     }
 }
 
@@ -48,7 +48,7 @@ std::vector<FollowRequest> FollowRequestRepository::getByRequesterId(int request
         return followRequests;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to retrieve follow requests by requester id " + std::string(error.what()));
+        throw std::runtime_error("FollowRequestRepository: Failed to retrieve follow requests by requester id: " + std::string(error.what()));
     }
 }
 
@@ -69,7 +69,7 @@ std::vector<FollowRequest> FollowRequestRepository::getByReceiverId(int receiver
         return followRequests;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to retrieve follow requests by receiver id " + std::string(error.what()));
+        throw std::runtime_error("FollowRequestRepository: Failed to retrieve follow requests by receiver id: " + std::string(error.what()));
     }
 }
 
@@ -90,7 +90,7 @@ std::optional<FollowRequest> FollowRequestRepository::getById(int followRequestI
         return followRequest;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to retrieve follow request by id " + std::string(error.what()));
+        throw std::runtime_error("FollowRequestRepository: Failed to retrieve follow request by id: " + std::string(error.what()));
     }
 }
 
@@ -105,6 +105,6 @@ bool FollowRequestRepository::update(int followRequestId, FollowRequestStatus st
          return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to update follow request status " + std::string(error.what()));
+        throw std::runtime_error("FollowRequestRepository: Failed to update follow request status: " + std::string(error.what()));
     }
 }

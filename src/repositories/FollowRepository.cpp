@@ -12,7 +12,7 @@ void FollowRepository::follow(int followerId, int followeeId) {
                      "VALUES (?, ?)").bind(followerId, followeeId).execute();
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed follow user" + std::string(error.what()));
+        throw std::runtime_error("FollowRepository: Failed to follow user: " + std::string(error.what()));
     }
 }
 
@@ -25,7 +25,7 @@ bool FollowRepository::unfollow(int followerId, int followeeId) {
         return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed follow user" + std::string(error.what()));
+        throw std::runtime_error("FollowRepository: Failed to unfollow user: " + std::string(error.what()));
     }
 }
 
@@ -47,7 +47,7 @@ std::vector<User> FollowRepository::getFollowers(int userId) {
          return followers;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to retrieve followers " + std::string(error.what()));
+        throw std::runtime_error("FollowRepository: Failed to retrieve followers: " + std::string(error.what()));
     }
 }
 
@@ -69,7 +69,7 @@ std::vector<User> FollowRepository::getFollowing(int userId) {
         return following;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed retrieve following " + std::string(error.what()));
+        throw std::runtime_error("FollowRepository: Failed to retrieve following: " + std::string(error.what()));
     }
 }
 
@@ -85,6 +85,6 @@ bool FollowRepository::isFollowing(int followerId, int followeeId) {
          return true;
      }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to check follow relationship " + std::string(error.what()));
+        throw std::runtime_error("FollowRepository: Failed to retrieve following: " + std::string(error.what()));
     }
 }

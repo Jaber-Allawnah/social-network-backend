@@ -36,7 +36,7 @@ std::optional<Post> PostRepository::getById(int postId) {
          return post;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to retrieve post by post id " + std::string(error.what()));
+        throw std::runtime_error("PostRepository: Failed to retrieve post by post id: " + std::string(error.what()));
     }
 }
 
@@ -57,7 +57,7 @@ std::vector<Post> PostRepository::getByUserId(int userId) {
          return posts;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to retrieve post by user id " + std::string(error.what()));
+        throw std::runtime_error("PostRepository: Failed to retrieve posts by user id: " + std::string(error.what()));
     }
 }
 
@@ -79,7 +79,7 @@ std::vector<Post> PostRepository::searchUserPosts(int userId, const std::string&
         return userPosts;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed to get post by user id " + std::string(error.what()));
+        throw std::runtime_error("PostRepository: Failed to search user posts by keyword: " + std::string(error.what()));
     }
 }
 
@@ -90,7 +90,7 @@ void PostRepository::create(int userId, const std::string& content) {
                      "VALUES (?, ?)").bind(content, userId).execute();
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed create post " + std::string(error.what()));
+        throw std::runtime_error("PostRepository: Failed to create post: " + std::string(error.what()));
     }
 }
 
@@ -100,9 +100,10 @@ bool PostRepository::update(int postId, const std::string& content) {
          mysqlx::SqlResult result = session.sql("UPDATE posts "
                                                 "SET content = ? "
                                                 "WHERE id = ?").bind(content, postId).execute();
+         return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed updated post " + std::string(error.what()));
+        throw std::runtime_error("PostRepository: Failed to update post: " + std::string(error.what()));
     }
 }
 
@@ -115,7 +116,7 @@ bool PostRepository::remove(int postId) {
         return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed delete post " + std::string(error.what()));
+        throw std::runtime_error("PostRepository: Failed to remove post: " + std::string(error.what()));
     }
 }
 

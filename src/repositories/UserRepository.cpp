@@ -9,13 +9,13 @@
  
 UserRepository::UserRepository(Database& database) : database_(database) {}
 
-std::optional<User> UserRepository::getById(int id){
+std::optional<User> UserRepository::getById(int userId){
     try {
          mysqlx::Session& session = database_.getSession();
          mysqlx::SqlResult result = session.sql("SELECT id, username, email, password_hash, "
                                                 "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
                                                 "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
-                                                "FROM users WHERE id = ?").bind(id).execute();
+                                                "FROM users WHERE id = ?").bind(userId).execute();
          mysqlx::Row row = result.fetchOne();
          if (!row) {
              return std::nullopt;
@@ -26,7 +26,7 @@ std::optional<User> UserRepository::getById(int id){
          return user;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed retrieve user by user id " + std::string(error.what()));
+        throw std::runtime_error("UserRepository: Failed to retrieve user by user id: " + std::string(error.what()));
     }
 }
 
@@ -47,7 +47,7 @@ std::optional<User> UserRepository::getByUsername(const std::string& username) {
          return user;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed retrieve user by username " + std::string(error.what()));
+        throw std::runtime_error("UserRepository: Failed to retrieve user by username: " + std::string(error.what()));
     }
 }
 
@@ -68,7 +68,7 @@ std::optional<User> UserRepository::getByEmail(const std::string& email) {
          return user;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed retrieve user by email " + std::string(error.what()));
+        throw std::runtime_error("UserRepository: Failed to retrieve user by email: " + std::string(error.what()));
     }
 }
 
@@ -81,7 +81,7 @@ void UserRepository::create(const std::string& username,
                      "VALUES (?, ?, ?)").bind(username, email, passwordHash).execute();
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed create user " + std::string(error.what()));
+        throw std::runtime_error("UserRepository: Failed to create user: " + std::string(error.what()));
     }
 }
 
@@ -98,7 +98,7 @@ bool UserRepository::update(int userId,
          return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed update users " + std::string(error.what()));
+        throw std::runtime_error("UserRepository: Failed to update user: " + std::string(error.what()));
     }
 }
 
@@ -111,7 +111,7 @@ bool UserRepository::remove(int userId) {
          return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("Failed remove user " + std::string(error.what()));
+        throw std::runtime_error("UserRepository: Failed to remove user: " + std::string(error.what()));
     }
 }
 
