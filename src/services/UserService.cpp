@@ -4,7 +4,7 @@
 
 UserService::UserService(UserRepository& userRepository) : userRepository_(userRepository) { }
 
-void UserService::registerUser(const std::string& username,
+User UserService::registerUser(const std::string& username,
                                const std::string& email,
                                const std::string& password) {
     if (userRepository_.getByEmail(email)) {
@@ -15,7 +15,7 @@ void UserService::registerUser(const std::string& username,
     }
 
     std::string hashedPassword = hashPassword(password);
-    userRepository_.create(username, email, hashedPassword);
+    return userRepository_.create(username, email, hashedPassword);
 }
 
 User UserService::login(const std::string& email,

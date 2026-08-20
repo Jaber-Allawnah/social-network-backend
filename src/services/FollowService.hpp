@@ -3,6 +3,7 @@
 #include "../repositories/FollowRepository.hpp"
 #include "../repositories/FollowRequestRepository.hpp"
 #include "../repositories/UserRepository.hpp"
+#include "../database/Database.hpp"
 
 class FollowService {
 private:
@@ -10,11 +11,13 @@ private:
 	FollowRequestRepository& followRequestRepository_;
 	UserRepository& userRepository_;
 	FollowRequest validatePendingRequest(int requestId, int receiverId);
+	Database& database_;
 
 public:
 	FollowService(FollowRepository& followRepository,
 			      FollowRequestRepository& followRequestRepository,
-				  UserRepository& userRepository);
+				  UserRepository& userRepository,
+				  Database& database);
 
 	bool sendFollowRequest(int requesterId, int receiverId);
 	bool acceptFollowRequest(int requestId, int receiverId);

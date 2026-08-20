@@ -11,8 +11,8 @@ private:
 	PostRepository& postRepository_;
 	FollowRepository& followRepository_;
 	UserRepository& userRepository_;
-	void validateCommentOwnership(int commentId, int userId);
-	void validatePostAccess(int postId, int userId);
+	void validateCommentOwnership(int commentId, int userId, int postId);
+	void validatePostAccess(int postId, int userId, bool checkUser = true);
 
 public:
 	CommentService(CommentRepository& commentRepository, 
@@ -21,8 +21,8 @@ public:
 				   UserRepository& userRepository);
 
 	Comment create(int userId, int postId, const std::string& content);
-	bool update(int userId, int commentId, const std::string& content);
-	bool remove(int userId, int commentId);
+	bool update(int userId, int commentId, int postId, const std::string& content);
+	bool remove(int userId, int commentId, int postId);
 
 	std::vector<Comment> getPostComments(int postId, int requesterId);
 };

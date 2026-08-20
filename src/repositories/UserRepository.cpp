@@ -72,13 +72,16 @@ std::optional<User> UserRepository::getByEmail(const std::string& email) {
     }
 }
 
-void UserRepository::create(const std::string& username,
+User UserRepository::create(const std::string& username,
                             const std::string& email,
                             const std::string& passwordHash) {
     try {
          mysqlx::Session& session = database_.getSession();
-         session.sql("INSERT INTO users (username, email, password_hash) "
-                     "VALUES (?, ?, ?)").bind(username, email, passwordHash).execute();
+         mysqlx::SqlResult result = session.sql("INSERT INTO users (username, email, password_hash) "
+                                                "VALUES (?, ?, ?)").bind(username, email, passwordHash).execute();
+         mysqlx::Row row = result.fetchOne();
+
+         return mapRowToUser(row);
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("UserRepository: Failed to create user: " + std::string(error.what()));

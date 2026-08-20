@@ -42,6 +42,10 @@ Post PostService::create(int userId, const std::string& content) {
 	if (!user) {
 		throw std::runtime_error("PostService: Requesting user not found");
 	}
+	if (content.empty()) {
+		throw std::runtime_error("PostService: Can't add an empty comment");
+	}
+
 	return postRepository_.create(userId, content);
 }
 
@@ -86,6 +90,8 @@ std::vector<Post> PostService::getFeed(int userId) {
 		std::vector<Post> userPosts = postRepository_.getByUserId(user.id);
 		feed.insert(feed.end(), userPosts.begin(), userPosts.end());
 	}
+	std::vector<Post> activeUserPosts = postRepository_.getByUserId(userId);
+	feed.insert(feed.end(), activeUserPosts.begin(), activeUserPosts.end());
 
 	return feed;
 }

@@ -2,10 +2,12 @@
 
 FollowService::FollowService(FollowRepository& followRepository,
 							 FollowRequestRepository& followRequestRepository,
-							 UserRepository& userRepository) 
+							 UserRepository& userRepository, 
+						     Database& database)
 						  :  followRepository_(followRepository),
 							 followRequestRepository_(followRequestRepository),
-							 userRepository_(userRepository) {}
+							 userRepository_(userRepository),
+							 database_(database){}
 
 FollowRequest FollowService::validatePendingRequest(int requestId, int receiverId) {
 	auto receiver = userRepository_.getById(receiverId);
@@ -31,7 +33,6 @@ bool FollowService::sendFollowRequest(int requesterId, int receiverId) {
 	if (requesterId == receiverId) {
 		throw std::runtime_error("FollowService: User cannot send a follow request to themselves");
 	}
-
 	auto requester = userRepository_.getById(requesterId);
 	if (!requester) {
 		throw std::runtime_error("FollowService: Requester not found");
@@ -40,11 +41,14 @@ bool FollowService::sendFollowRequest(int requesterId, int receiverId) {
 	if (!receiver) {
 		throw std::runtime_error("FollowService: Receiver not found");
 	}
-
+	// If the users are currently following each other, do not allow another request.
 	if (followRepository_.isFollowing(requesterId, receiverId)) {
 		throw std::runtime_error("FollowService: User is already following this user");
 	}
-
+	// Reuse the existing request row because requester/receiver pairs are unique.
+	// Rejected requests can be sent again.
+	// An Accepted request reaches this point only if the users are no longer
+	// following each other, allowing a new request after an unfollow.
 	auto followRequest = followRequestRepository_.getByUsers(requesterId, receiverId);
 	if (followRequest && followRequest.value().status == FollowRequestStatus::Pending) {
 		throw std::runtime_error("FollowService: Follow request is already pending");
@@ -61,9 +65,27 @@ bool FollowService::sendFollowRequest(int requesterId, int receiverId) {
 
 bool FollowService::acceptFollowRequest(int requestId, int receiverId) {
 	FollowRequest followRequest = validatePendingRequest(requestId, receiverId);
-	
-	followRequestRepository_.update(requestId, FollowRequestStatus::Accepted);
-	return followRepository_.follow(followRequest.requesterId, receiverId);
+
+	mysqlx::Session& session = database_.getSession();
+	session.startTransaction();
+	try {
+		bool upadted = followRequestRepository_.update(requestId, FollowRequestStatus::Accepted);
+		if (!upadted) {
+			throw std::runtime_error("FollowService: Failed to update follow request");
+		}
+
+		bool followed = followRepository_.follow(followRequest.requesterId, receiverId);
+		if (!followed) {
+			throw std::runtime_error("FollowService: Failed to create follow relationship");
+		}
+
+		session.commit();
+		return true;
+	}
+	catch(...){
+		session.rollback();
+		throw;
+	}
 }
 
 bool FollowService::rejectFollowRequest(int requestId, int receiverId) {

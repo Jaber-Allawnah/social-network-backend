@@ -19,7 +19,7 @@ public:
 	std::optional<User> getByUsername(const std::string& username);
 	std::optional<User> getByEmail(const std::string& email);
 
-	void create(const std::string& username,
+	User create(const std::string& username,
 				const std::string& email,
 			 const std::string& passwordHash);
 	bool update(int userId,
