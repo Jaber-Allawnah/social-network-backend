@@ -20,11 +20,13 @@ FollowRequest FollowRequestRepository::mapRowToFollowRequest(const mysqlx::Row& 
     return followRequest;
 }
 
-void FollowRequestRepository::create(int requesterId, int receiverId) {
+bool FollowRequestRepository::create(int requesterId, int receiverId) {
     try {
         mysqlx::Session& session = database_.getSession();
-        session.sql("INSERT INTO follow_requests (requester_id, receiver_id) "
-                    "VALUES (?, ?)").bind(requesterId, receiverId).execute();
+        mysqlx::SqlResult result = session.sql("INSERT INTO follow_requests (requester_id, receiver_id) "
+                                               "VALUES (?, ?)").bind(requesterId, receiverId).execute();
+        
+        return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("FollowRequestRepository: Failed to create follow request: " + std::string(error.what()));
@@ -106,5 +108,26 @@ bool FollowRequestRepository::update(int followRequestId, FollowRequestStatus st
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("FollowRequestRepository: Failed to update follow request status: " + std::string(error.what()));
+    }
+}
+
+std::optional<FollowRequest> FollowRequestRepository::getByUsers(int requesterId, int receiverId) {
+    try {
+         mysqlx::Session& session = database_.getSession();
+         mysqlx::SqlResult result = session.sql("SELECT id, requester_id, receiver_id, status, "
+                                                "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
+                                                "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
+                                                "FROM follow_requests "
+                                                "WHERE requester_id = ? AND receiver_id = ?").bind(requesterId, receiverId).execute();
+         mysqlx::Row row = result.fetchOne();
+         if (!row) {
+             return std::nullopt;
+         }
+
+         return mapRowToFollowRequest(row);
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("FollowRequestRepository: Failed to retrieve follow request: " +
+                                 std::string(error.what()));
     }
 }

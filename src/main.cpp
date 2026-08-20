@@ -2,7 +2,21 @@
 #include <string>
 #include <stdexcept>
 #include <cstdlib> 
+#include <sodium.h>
 #include "database/Database.hpp"
+#include "repositories/UserRepository.hpp"
+#include "services/UserService.hpp"
+#include "repositories/PostRepository.hpp"
+#include "repositories/CommentRepository.hpp"
+#include "repositories/LikeRepository.hpp"
+#include "repositories/FollowRequestRepository.hpp"
+#include "repositories/FollowRepository.hpp"
+#include "services/PostService.hpp"
+#include "services/CommentService.hpp"
+#include "services/LikeService.hpp"
+#include "services/FollowService.hpp"
+
+
 
 std::string getEnvironmentVariable(const char* name) {
     const char* value = std::getenv(name);

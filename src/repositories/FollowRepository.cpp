@@ -5,11 +5,13 @@
 
 FollowRepository::FollowRepository(Database& database) : database_(database) {}
 
-void FollowRepository::follow(int followerId, int followeeId) {
+bool FollowRepository::follow(int followerId, int followeeId) {
     try {
          mysqlx::Session& session = database_.getSession();
-         session.sql("INSERT INTO follows (follower_id, followee_id) "
-                     "VALUES (?, ?)").bind(followerId, followeeId).execute();
+         mysqlx::SqlResult result = session.sql("INSERT INTO follows (follower_id, followee_id) "
+                                                "VALUES (?, ?)").bind(followerId, followeeId).execute();
+         
+         return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("FollowRepository: Failed to follow user: " + std::string(error.what()));

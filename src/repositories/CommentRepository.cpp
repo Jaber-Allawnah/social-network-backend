@@ -60,11 +60,19 @@ std::optional<Comment> CommentRepository::getById(int commentId) {
     }
 }
 
-void CommentRepository::create(const std::string& content, int userId, int postId) {
+Comment CommentRepository::create(int userId, int postId, const std::string& content) {
     try {
          mysqlx::Session& session = database_.getSession();
-         session.sql("INSERT INTO comments (content, user_id, post_id) "
-                     "VALUES(?, ?, ?)").bind(content, userId, postId).execute();
+         mysqlx::SqlResult result = session.sql("INSERT INTO comments (content, user_id, post_id) "
+                                                "VALUES(?, ?, ?)").bind(content, userId, postId).execute();
+
+         int commentId = static_cast<int>(result.getAutoIncrementValue());
+         auto comment = getById(commentId);
+         if (!comment) {
+             throw std::runtime_error("PostRepository: Created comment could not be retrieved");
+         }
+
+         return comment.value();
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("CommentRepository: Failed to create comment: " + std::string(error.what()));

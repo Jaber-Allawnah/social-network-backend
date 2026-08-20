@@ -83,11 +83,19 @@ std::vector<Post> PostRepository::searchUserPosts(int userId, const std::string&
     }
 }
 
-void PostRepository::create(int userId, const std::string& content) {
+Post PostRepository::create(int userId, const std::string& content) {
     try {
          mysqlx::Session& session = database_.getSession();
-         session.sql("INSERT INTO posts (content, user_id) "
-                     "VALUES (?, ?)").bind(content, userId).execute();
+         mysqlx::SqlResult result = session.sql("INSERT INTO posts (content, user_id) "
+                                                "VALUES (?, ?)").bind(content, userId).execute();
+
+         int postId = static_cast<int>(result.getAutoIncrementValue());
+         auto post = getById(postId);
+         if (!post) {
+             throw std::runtime_error("PostRepository: Created post could not be retrieved");
+         }
+
+         return post.value();
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("PostRepository: Failed to create post: " + std::string(error.what()));

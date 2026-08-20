@@ -20,11 +20,11 @@ public:
 	std::optional<User> getByEmail(const std::string& email);
 
 	void create(const std::string& username,
-				 const std::string& email,
-				 const std::string& passwordHash);
+				const std::string& email,
+			 const std::string& passwordHash);
 	bool update(int userId,
-					const std::string& username,
-					const std::string& email,
-					const std::string& passwordHash);
+				const std::string& username,
+				const std::string& email,
+				const std::string& passwordHash);
 	bool remove(int userId);
 };	

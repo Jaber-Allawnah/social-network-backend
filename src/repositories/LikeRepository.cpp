@@ -30,11 +30,13 @@ std::vector<User> LikeRepository::getByPostId(int postId) {
     }
 }
 
-void LikeRepository::like(int userId, int postId) {
+bool LikeRepository::like(int userId, int postId) {
     try {
          mysqlx::Session& session = database_.getSession();
-         session.sql("INSERT INTO likes (user_id, post_id) "
+         mysqlx::SqlResult result = session.sql("INSERT INTO likes (user_id, post_id) "
                      "VALUES (?, ?)").bind(userId, postId).execute();
+
+         return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("LikeRepository: Failed to like post: " + std::string(error.what()));
@@ -51,5 +53,22 @@ bool LikeRepository::unlike(int userId, int postId) {
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("LikeRepository: Failed to unlike post: " + std::string(error.what()));
+    }
+}
+
+bool LikeRepository::hasLiked(int userId, int postId) {
+    try {
+         mysqlx::Session& session = database_.getSession();
+
+         mysqlx::SqlResult result = session.sql(
+             "SELECT 1 FROM likes "
+             "WHERE user_id = ? AND post_id = ? "
+             "LIMIT 1").bind(userId, postId).execute();
+
+         return result.fetchOne();
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("LikeRepository: Failed to check if user liked post: " +
+                                 std::string(error.what()));
     }
 }
