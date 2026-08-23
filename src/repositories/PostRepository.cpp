@@ -1,9 +1,6 @@
 #include "./PostRepository.hpp"
 #include "../utils/DateTimeUtils.hpp"
 #include <mysqlx/xdevapi.h>
-#include <ctime>
-#include <iomanip>
-#include <sstream>
 #include <stdexcept>
 
 PostRepository::PostRepository(Database& database) : database_(database) {}
@@ -130,15 +127,20 @@ bool PostRepository::remove(int postId) {
 
 std::vector<Post> PostRepository::getUserFeed(int userId) {
     try {
-        mysqlx::Session& session = database_.getSession();
-
-        mysqlx::SqlResult result = session.sql("SELECT p.id, p.content, p.user_id, "
-                                                "DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i:%s'), "
-                                                "DATE_FORMAT(p.updated_at, '%Y-%m-%d %H:%i:%s') "
+         mysqlx::Session& session = database_.getSession();
+         mysqlx::SqlResult result = session.sql("SELECT p.id, p.content, p.user_id, "
+                                                "DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i:%s') AS created_at, "
+                                                "DATE_FORMAT(p.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at "
+                                                "FROM posts p "
+                                                "WHERE p.user_id = ? "
+                                                "UNION ALL "
+                                                "SELECT p.id, p.content, p.user_id, "
+                                                "DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i:%s') AS created_at, "
+                                                "DATE_FORMAT(p.updated_at, '%Y-%m-%d %H:%i:%s') AS updated_at "
                                                 "FROM posts p "
                                                 "JOIN follows f ON p.user_id = f.followee_id "
                                                 "WHERE f.follower_id = ? "
-                                                "ORDER BY p.created_at DESC").bind(userId).execute();
+                                                "ORDER BY created_at DESC").bind(userId, userId).execute();
 
         auto rows = result.fetchAll();
         std::vector<Post> posts;

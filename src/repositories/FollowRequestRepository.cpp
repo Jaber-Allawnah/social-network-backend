@@ -1,9 +1,6 @@
 #include "./FollowRequestRepository.hpp"
 #include "../utils/DateTimeUtils.hpp"
 #include "../utils/FollowRequestStatusUtils.hpp"
-#include <ctime>
-#include <iomanip>
-#include <sstream>
 #include <stdexcept>
 
 FollowRequestRepository::FollowRequestRepository(Database& database) : database_(database) {}

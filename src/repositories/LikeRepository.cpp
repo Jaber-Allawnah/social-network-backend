@@ -1,9 +1,6 @@
 #include "./LikeRepository.hpp"
 #include "../utils/DateTimeUtils.hpp"
 #include "../utils/UserMapper.hpp"
-#include <ctime>
-#include <iomanip>
-#include <sstream>
 #include <stdexcept>
 
 LikeRepository::LikeRepository(Database& database) : database_(database) {}

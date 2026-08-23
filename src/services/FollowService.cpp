@@ -29,39 +29,39 @@ FollowRequest FollowService::validatePendingRequest(int requestId, int receiverI
 	return followRequest.value();
 }
 
-	bool FollowService::sendFollowRequest(int requesterId, int receiverId) {
-		if (requesterId == receiverId) {
-			throw std::runtime_error("FollowService: User cannot send a follow request to themselves");
-		}
-		auto requester = userRepository_.getById(requesterId);
-		if (!requester) {
-			throw std::runtime_error("FollowService: Requester not found");
-		}
-		auto receiver = userRepository_.getById(receiverId);
-		if (!receiver) {
-			throw std::runtime_error("FollowService: Receiver not found");
-		}
-		// If the users are currently following each other, do not allow another request.
-		if (followRepository_.isFollowing(requesterId, receiverId)) {
-			throw std::runtime_error("FollowService: User is already following this user");
-		}
-		// Reuse the existing request row because requester/receiver pairs are unique.
-		// Rejected requests can be sent again.
-		// An Accepted request reaches this point only if the users are no longer
-		// following each other, allowing a new request after an unfollow.
-		auto followRequest = followRequestRepository_.getByUsers(requesterId, receiverId);
-		if (followRequest && followRequest.value().status == FollowRequestStatus::Pending) {
-			throw std::runtime_error("FollowService: Follow request is already pending");
-		}
-		else if (followRequest && 
-				 (followRequest.value().status == FollowRequestStatus::Rejected ||
-				 followRequest.value().status == FollowRequestStatus::Accepted)) {
-			return followRequestRepository_.update(followRequest.value().id, 
-												   FollowRequestStatus::Pending);
-		}
-	
-		return followRequestRepository_.create(requesterId, receiverId);
+bool FollowService::sendFollowRequest(int requesterId, int receiverId) {
+	if (requesterId == receiverId) {
+		throw std::runtime_error("FollowService: User cannot send a follow request to themselves");
 	}
+	auto requester = userRepository_.getById(requesterId);
+	if (!requester) {
+		throw std::runtime_error("FollowService: Requester not found");
+	}
+	auto receiver = userRepository_.getById(receiverId);
+	if (!receiver) {
+		throw std::runtime_error("FollowService: Receiver not found");
+	}
+	// If the users are currently following each other, do not allow another request.
+	if (followRepository_.isFollowing(requesterId, receiverId)) {
+		throw std::runtime_error("FollowService: User is already following this user");
+	}
+	// Reuse the existing request row because requester/receiver pairs are unique.
+	// Rejected requests can be sent again.
+	// An Accepted request reaches this point only if the users are no longer
+	// following each other, allowing a new request after an unfollow.
+	auto followRequest = followRequestRepository_.getByUsers(requesterId, receiverId);
+	if (followRequest && followRequest.value().status == FollowRequestStatus::Pending) {
+		throw std::runtime_error("FollowService: Follow request is already pending");
+	}
+	else if (followRequest && 
+				(followRequest.value().status == FollowRequestStatus::Rejected ||
+				followRequest.value().status == FollowRequestStatus::Accepted)) {
+		return followRequestRepository_.update(followRequest.value().id, 
+												FollowRequestStatus::Pending);
+	}
+	
+	return followRequestRepository_.create(requesterId, receiverId);
+}
 
 bool FollowService::acceptFollowRequest(int requestId, int receiverId) {
 	FollowRequest followRequest = validatePendingRequest(requestId, receiverId);
