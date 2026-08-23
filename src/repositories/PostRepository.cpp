@@ -128,4 +128,28 @@ bool PostRepository::remove(int postId) {
     }
 }
 
+std::vector<Post> PostRepository::getUserFeed(int userId) {
+    try {
+        mysqlx::Session& session = database_.getSession();
+
+        mysqlx::SqlResult result = session.sql("SELECT p.id, p.content, p.user_id, "
+                                                "DATE_FORMAT(p.created_at, '%Y-%m-%d %H:%i:%s'), "
+                                                "DATE_FORMAT(p.updated_at, '%Y-%m-%d %H:%i:%s') "
+                                                "FROM posts p "
+                                                "JOIN follows f ON p.user_id = f.followee_id "
+                                                "WHERE f.follower_id = ? "
+                                                "ORDER BY p.created_at DESC").bind(userId).execute();
+
+        auto rows = result.fetchAll();
+        std::vector<Post> posts;
+        for (const mysqlx::Row& row : rows) {
+            posts.push_back(mapRowToPost(row));
+        }
+
+        return posts;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("PostRepository: Failed to retrieve user feed: " + std::string(error.what()));
+    }
+}
 

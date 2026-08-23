@@ -19,6 +19,7 @@ public:
 	std::optional<Post> getById(int postId);
 	std::vector<Post> getByUserId(int userId);
 	std::vector<Post> searchUserPosts(int userId, const std::string& content);
+	std::vector<Post> getUserFeed(int userId);
 
 	Post create(int userId, const std::string& content);
 	bool update(int postId, const std::string& content);

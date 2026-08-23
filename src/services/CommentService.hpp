@@ -12,7 +12,8 @@ private:
 	FollowRepository& followRepository_;
 	UserRepository& userRepository_;
 	void validateCommentOwnership(int commentId, int userId, int postId);
-	void validatePostAccess(int postId, int userId, bool checkUser = true);
+	void validateUserPostsAccess(int postId, int userId);
+	void validateUserExists(int userId);
 
 public:
 	CommentService(CommentRepository& commentRepository, 

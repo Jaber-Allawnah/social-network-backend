@@ -13,7 +13,7 @@ private:
     FollowRepository& followRepository_;
     PostRepository& postRepository_;
     UserRepository& userRepository_;
-    void validatePostAccess(int postId, int requesterId);
+    void validateUserPostsAccess(int postId, int requesterId);
 
 public:
     LikeService(LikeRepository& likeRepository, 
@@ -23,7 +23,6 @@ public:
 
     bool like(int requesterId, int postId);
     bool unlike(int requesterId, int postId);
-
 
     std::vector<User> getUsersWhoLikedPost(int requesterId, int postId);
 };

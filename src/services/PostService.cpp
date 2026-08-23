@@ -13,6 +13,7 @@ void PostService::validatePostOwnership(int postId, int requesterId) {
 	if (!user) {
 		throw std::runtime_error("PostService: Requesting user not found");
 	}
+
 	auto post = postRepository_.getById(postId);
 	if (!post) {
 		throw std::runtime_error("PostService: Post not found ");
@@ -22,11 +23,12 @@ void PostService::validatePostOwnership(int postId, int requesterId) {
 	}
 }
 
-void PostService::validatePostAccess(int ownerId, int requesterId) {
+void PostService::validateUserPostsAccess(int ownerId, int requesterId) {
 	auto user = userRepository_.getById(requesterId);
 	if (!user) {
 		throw std::runtime_error("PostService: Requesting user not found");
 	}
+
 	auto owner = userRepository_.getById(ownerId);
 	if (!owner) {
 		throw std::runtime_error("PostService: Post owner not found");
@@ -42,8 +44,9 @@ Post PostService::create(int userId, const std::string& content) {
 	if (!user) {
 		throw std::runtime_error("PostService: Requesting user not found");
 	}
+
 	if (content.empty()) {
-		throw std::runtime_error("PostService: Can't add an empty comment");
+		throw std::runtime_error("PostService: Can't add an empty post");
 	}
 
 	return postRepository_.create(userId, content);
@@ -51,6 +54,11 @@ Post PostService::create(int userId, const std::string& content) {
 
 bool PostService::update(int postId, int requesterId, const std::string& content) {
 	validatePostOwnership(postId, requesterId);
+
+	if (content.empty()) {
+		throw std::runtime_error("PostService: Can't update post with empty content");
+	}
+
 	return postRepository_.update(postId, content);
 }
 
@@ -62,20 +70,24 @@ bool PostService::remove(int postId, int requesterId) {
 Post PostService::getPost(int postId, int requesterId) {
 	auto post = postRepository_.getById(postId);
 	if (!post) {
-		throw std::runtime_error("PostService: Can't retrieve a non-existing post ");
+		throw std::runtime_error("PostService: Can't retrieve a non-existing post");
 	}
-	validatePostAccess(post.value().userId, requesterId);
+	validateUserPostsAccess(post.value().userId, requesterId);
 
 	return post.value();
 }
 
 std::vector<Post> PostService::searchUserPosts(int ownerId, int requesterId, const std::string& keyword) {
-	validatePostAccess(ownerId, requesterId);
+	validateUserPostsAccess(ownerId, requesterId);
+
+	if (keyword.empty()) {
+		throw std::runtime_error("PostService: Can't search using an empty keyword");
+	}
 	return postRepository_.searchUserPosts(ownerId, keyword);
 }
 
 std::vector<Post> PostService::getUserPosts(int ownerId, int requesterId) {
-	validatePostAccess(ownerId, requesterId);
+	validateUserPostsAccess(ownerId, requesterId);
 	return postRepository_.getByUserId(ownerId);
 }
 
@@ -84,14 +96,6 @@ std::vector<Post> PostService::getFeed(int userId) {
 	if (!user) {
 		throw std::runtime_error("PostService: Requesting user not found");
 	}
-	std::vector<User> following = followRepository_.getFollowing(userId);
-	std::vector<Post> feed;
-	for (const User& user : following) {
-		std::vector<Post> userPosts = postRepository_.getByUserId(user.id);
-		feed.insert(feed.end(), userPosts.begin(), userPosts.end());
-	}
-	std::vector<Post> activeUserPosts = postRepository_.getByUserId(userId);
-	feed.insert(feed.end(), activeUserPosts.begin(), activeUserPosts.end());
 
-	return feed;
+	return postRepository_.getUserFeed(userId);
 }

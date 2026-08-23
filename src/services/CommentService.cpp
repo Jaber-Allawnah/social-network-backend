@@ -10,11 +10,6 @@ CommentService::CommentService(CommentRepository& commentRepository,
 							   userRepository_(userRepository){}
 
 void CommentService::validateCommentOwnership(int commentId, int userId, int postId) {
-	auto user = userRepository_.getById(userId);
-	if (!user) {
-		throw std::runtime_error("CommentService: Requesting user not found");
-	}
-
 	auto comment = commentRepository_.getById(commentId);
 	if (!comment) {
 		throw std::runtime_error("CommentService: Comment not found");
@@ -27,26 +22,28 @@ void CommentService::validateCommentOwnership(int commentId, int userId, int pos
 	}
 }
 
-void CommentService::validatePostAccess(int postId, int userId, bool checkUser) {
-	if (checkUser) {
-		auto user = userRepository_.getById(userId);
-		if (!user) {
-			throw std::runtime_error("CommentService: Requesting user not found");
-		}
-	}
-
+void CommentService::validateUserPostsAccess(int postId, int userId) {
 	auto post = postRepository_.getById(postId);
 	if (!post) {
 		throw std::runtime_error("CommentService: Post not found");
 	}
+
 	int ownerId = post.value().userId;
 	if (userId != ownerId && !followRepository_.isFollowing(userId, ownerId)) {
 		throw std::runtime_error("CommentService: User cannot access this post");
 	}
 }
 
+void CommentService::validateUserExists(int userId) {
+	auto user = userRepository_.getById(userId);
+	if (!user) {
+		throw std::runtime_error("CommentService: Requesting user not found");
+	}
+}
+
 Comment CommentService::create(int userId, int postId, const std::string& content) {
-	validatePostAccess(postId, userId);
+	validateUserExists(userId);
+	validateUserPostsAccess(postId, userId);
 	if (content.empty()) {
 		throw std::runtime_error("CommentService: Can't add an empty comment");
 	}
@@ -55,8 +52,9 @@ Comment CommentService::create(int userId, int postId, const std::string& conten
 }
 
 bool CommentService::update(int userId, int commentId, int postId, const std::string& content) {
+	validateUserExists(userId);
 	validateCommentOwnership(commentId, userId, postId);
-	validatePostAccess(postId, userId, false);
+	validateUserPostsAccess(postId, userId);
 	if (content.empty()) {
 		throw std::runtime_error("CommentService: Can't update a comment to an empty comment");
 	}
@@ -64,14 +62,16 @@ bool CommentService::update(int userId, int commentId, int postId, const std::st
 }
 
 bool CommentService::remove(int userId, int commentId, int postId) {
+	validateUserExists(userId);
 	validateCommentOwnership(commentId, userId, postId);
-	validatePostAccess(postId, userId, false);
+	validateUserPostsAccess(postId, userId);
 
 	return commentRepository_.remove(commentId);
 }
 
 std::vector<Comment> CommentService::getPostComments(int postId, int userId) {
-	validatePostAccess(postId, userId);
+	validateUserExists(userId);
+	validateUserPostsAccess(postId, userId);
 
 	return commentRepository_.getByPostId(postId);
 }

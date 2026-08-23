@@ -79,9 +79,14 @@ User UserRepository::create(const std::string& username,
          mysqlx::Session& session = database_.getSession();
          mysqlx::SqlResult result = session.sql("INSERT INTO users (username, email, password_hash) "
                                                 "VALUES (?, ?, ?)").bind(username, email, passwordHash).execute();
-         mysqlx::Row row = result.fetchOne();
+         int userId = static_cast<int>(result.getAutoIncrementValue());
+         std::optional<User> user = getById(userId);
 
-         return mapRowToUser(row);
+         if (!user) {
+             throw std::runtime_error("UserRepository: Created user could not be retrieved");
+         }
+
+         return user.value();
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("UserRepository: Failed to create user: " + std::string(error.what()));

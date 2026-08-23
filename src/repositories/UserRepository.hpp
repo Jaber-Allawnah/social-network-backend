@@ -21,7 +21,7 @@ public:
 
 	User create(const std::string& username,
 				const std::string& email,
-			 const std::string& passwordHash);
+				const std::string& passwordHash);
 	bool update(int userId,
 				const std::string& username,
 				const std::string& email,

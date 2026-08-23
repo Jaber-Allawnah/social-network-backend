@@ -60,10 +60,9 @@ bool LikeRepository::hasLiked(int userId, int postId) {
     try {
          mysqlx::Session& session = database_.getSession();
 
-         mysqlx::SqlResult result = session.sql(
-             "SELECT 1 FROM likes "
-             "WHERE user_id = ? AND post_id = ? "
-             "LIMIT 1").bind(userId, postId).execute();
+         mysqlx::SqlResult result = session.sql("SELECT 1 FROM likes "
+                                                "WHERE user_id = ? AND post_id = ? "
+                                                "LIMIT 1").bind(userId, postId).execute();
 
          return result.fetchOne();
     }

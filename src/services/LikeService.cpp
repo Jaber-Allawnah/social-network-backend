@@ -9,11 +9,12 @@ LikeService::LikeService(LikeRepository& likeRepository,
                          postRepository_(postRepository),
                          userRepository_(userRepository) {}
 
-void LikeService::validatePostAccess(int postId, int requesterId) {
+void LikeService::validateUserPostsAccess(int postId, int requesterId) {
     auto post = postRepository_.getById(postId);
     if (!post) {
         throw std::runtime_error("LikeService: Post not found");
     }
+
     auto user = userRepository_.getById(requesterId);
     if (!user) {
         throw std::runtime_error("LikeService: Requesting user not found");
@@ -27,7 +28,7 @@ void LikeService::validatePostAccess(int postId, int requesterId) {
 }
 
 bool LikeService::like(int requesterId, int postId) {
-    validatePostAccess(postId, requesterId);
+    validateUserPostsAccess(postId, requesterId);
     if (likeRepository_.hasLiked(requesterId, postId)) {
         throw std::runtime_error("LikeService: User has already liked this post");
     }
@@ -36,7 +37,7 @@ bool LikeService::like(int requesterId, int postId) {
 }
 
 bool LikeService::unlike(int requesterId, int postId) {
-    validatePostAccess(postId, requesterId);
+    validateUserPostsAccess(postId, requesterId);
     if (!likeRepository_.hasLiked(requesterId, postId)) {
         throw std::runtime_error("LikeService: Like does not exist on the post");
     }
@@ -45,6 +46,6 @@ bool LikeService::unlike(int requesterId, int postId) {
 }
 
 std::vector<User> LikeService::getUsersWhoLikedPost(int requesterId, int postId) {
-    validatePostAccess(postId, requesterId);
+    validateUserPostsAccess(postId, requesterId);
     return likeRepository_.getByPostId(postId);
 }
