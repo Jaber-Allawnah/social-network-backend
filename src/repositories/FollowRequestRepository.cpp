@@ -144,6 +144,7 @@ std::optional<FollowRequest> FollowRequestRepository::getByUsers(int requesterId
             FROM follow_requests
             WHERE requester_id = ?
                AND receiver_id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(requesterId, receiverId).execute();
         mysqlx::Row row = result.fetchOne();
         if (!row) {

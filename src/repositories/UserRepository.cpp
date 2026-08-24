@@ -19,6 +19,7 @@ std::optional<User> UserRepository::getById(int userId) {
                 DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
             FROM users
             WHERE id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(userId).execute();
         mysqlx::Row row = result.fetchOne();
         if (!row) {
@@ -47,6 +48,7 @@ std::optional<User> UserRepository::getByUsername(const std::string& username) {
                 DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
             FROM users
             WHERE username = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(username).execute();
         mysqlx::Row row = result.fetchOne();
         if (!row)
@@ -74,6 +76,7 @@ std::optional<User> UserRepository::getByEmail(const std::string& email) {
                 DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
             FROM users
             WHERE email = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(email).execute();
         mysqlx::Row row = result.fetchOne();
         if (!row)
@@ -96,7 +99,9 @@ User UserRepository::create(const std::string& username,
         const std::string sql = R"(
             INSERT INTO users (username, email, password_hash)
             VALUES (?, ?, ?))";
+
         mysqlx::SqlResult result = session.sql(sql).bind(username, email, passwordHash).execute();
+
         int userId = static_cast<int>(result.getAutoIncrementValue());
         std::optional<User> user = getById(userId);
         if (!user) {
@@ -120,6 +125,7 @@ bool UserRepository::update(int userId,
             UPDATE users
             SET username = ?, email = ?, password_hash = ?
             WHERE id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(username, email, passwordHash, userId).execute();
 
         return result.getAffectedItemsCount() > 0;
@@ -135,6 +141,7 @@ bool UserRepository::remove(int userId) {
         const std::string sql = R"(
             DELETE FROM users
             WHERE id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(userId).execute();
 
         return result.getAffectedItemsCount() > 0;

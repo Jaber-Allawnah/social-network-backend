@@ -29,8 +29,10 @@ std::vector<Comment> CommentRepository::getByPostId(int postId) {
                 DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
             FROM comments
             WHERE post_id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(postId).execute();
         auto rows = result.fetchAll();
+
         std::vector<Comment> postComments;
         for (const mysqlx::Row& row : rows) {
             postComments.push_back(mapRowToComment(row));
@@ -56,10 +58,12 @@ std::optional<Comment> CommentRepository::getById(int commentId) {
                 DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
             FROM comments
             WHERE id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(commentId).execute();
         mysqlx::Row row = result.fetchOne();
         if (!row)
             return std::nullopt;
+
         Comment comment = mapRowToComment(row);
 
         return comment;
@@ -75,6 +79,7 @@ Comment CommentRepository::create(int userId, int postId, const std::string& con
         const std::string sql = R"(
             INSERT INTO comments (content, user_id, post_id)
             VALUES(?, ?, ?))";
+
         mysqlx::SqlResult result = session.sql(sql).bind(content, userId, postId).execute();
 
         int commentId = static_cast<int>(result.getAutoIncrementValue());
@@ -97,6 +102,7 @@ bool CommentRepository::update(int commentId, const std::string& content) {
             UPDATE comments
             SET content = ?
             WHERE id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(content, commentId).execute();
 
         return result.getAffectedItemsCount() > 0;
@@ -112,6 +118,7 @@ bool CommentRepository::remove(int commentId) {
         const std::string sql = R"(
             DELETE FROM comments
             WHERE id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(commentId).execute();
 
         return result.getAffectedItemsCount() > 0;

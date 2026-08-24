@@ -28,11 +28,13 @@ std::optional<Post> PostRepository::getById(int postId) {
                 DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
             FROM posts
             WHERE id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(postId).execute();
         mysqlx::Row row = result.fetchOne();
         if (!row) {
             return std::nullopt;
         }
+
         Post post = mapRowToPost(row);
 
         return post;
@@ -54,8 +56,10 @@ std::vector<Post> PostRepository::getByUserId(int userId) {
                 DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
             FROM posts
             WHERE user_id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(userId).execute();
         auto rows = result.fetchAll();
+
         std::vector<Post> posts;
         for (const mysqlx::Row& row : rows) {
             posts.push_back(mapRowToPost(row));
@@ -82,8 +86,10 @@ std::vector<Post> PostRepository::searchUserPosts(int userId, const std::string&
             FROM posts
             WHERE user_id = ?
                AND content LIKE ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(userId, formattedKeyword).execute();
         auto rows = result.fetchAll();
+
         std::vector<Post> userPosts;
         for (const mysqlx::Row& row : rows) {
             userPosts.push_back(mapRowToPost(row));
@@ -102,6 +108,7 @@ Post PostRepository::create(int userId, const std::string& content) {
         const std::string sql = R"(
             INSERT INTO posts (content, user_id)
             VALUES (?, ?))";
+
         mysqlx::SqlResult result = session.sql(sql).bind(content, userId).execute();
 
         int postId = static_cast<int>(result.getAutoIncrementValue());
@@ -124,6 +131,7 @@ bool PostRepository::update(int postId, const std::string& content) {
             UPDATE posts
             SET content = ?
             WHERE id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(content, postId).execute();
         return result.getAffectedItemsCount() > 0;
     }
@@ -138,6 +146,7 @@ bool PostRepository::remove(int postId) {
         const std::string sql = R"(
             DELETE FROM posts
             WHERE id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(postId).execute();
 
         return result.getAffectedItemsCount() > 0;
@@ -165,9 +174,10 @@ std::vector<Post> PostRepository::getUserFeed(int userId) {
                    WHERE follower_id = ?
                )
             ORDER BY p.created_at DESC)";
-        mysqlx::SqlResult result = session.sql(sql).bind(userId, userId).execute();
 
+        mysqlx::SqlResult result = session.sql(sql).bind(userId, userId).execute();
         auto rows = result.fetchAll();
+
         std::vector<Post> posts;
         for (const mysqlx::Row& row : rows) {
             posts.push_back(mapRowToPost(row));

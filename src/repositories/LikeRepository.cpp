@@ -19,8 +19,10 @@ std::vector<User> LikeRepository::getByPostId(int postId) {
             FROM likes l
             JOIN users u ON u.id = l.user_id
             WHERE l.post_id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(postId).execute();
         auto rows = result.fetchAll();
+
         std::vector<User> users;
         for (const mysqlx::Row& row : rows) {
             users.push_back(mapRowToUser(row));
@@ -39,6 +41,7 @@ bool LikeRepository::like(int userId, int postId) {
         const std::string sql = R"(
             INSERT INTO likes (user_id, post_id)
             VALUES (?, ?))";
+
         mysqlx::SqlResult result = session.sql(sql).bind(userId, postId).execute();
 
         return result.getAffectedItemsCount() > 0;
@@ -55,6 +58,7 @@ bool LikeRepository::unlike(int userId, int postId) {
             DELETE FROM likes
             WHERE post_id = ?
                AND user_id = ?)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(postId, userId).execute();
 
         return result.getAffectedItemsCount() > 0;
@@ -74,6 +78,7 @@ bool LikeRepository::hasLiked(int userId, int postId) {
             WHERE user_id = ?
                AND post_id = ?
             LIMIT 1)";
+
         mysqlx::SqlResult result = session.sql(sql).bind(userId, postId).execute();
 
         return result.fetchOne();
