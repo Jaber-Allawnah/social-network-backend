@@ -10,8 +10,9 @@ private:
 	FollowRepository& followRepository_;
 	FollowRequestRepository& followRequestRepository_;
 	UserRepository& userRepository_;
-	FollowRequest validatePendingRequest(int requestId, int receiverId);
 	Database& database_;
+
+	FollowRequest validatePendingRequest(int requestId, int receiverId);
 
 public:
 	FollowService(FollowRepository& followRepository,

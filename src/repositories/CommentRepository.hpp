@@ -9,6 +9,7 @@
 class CommentRepository {
 private:
 	Database& database_;
+
 	Comment mapRowToComment(const mysqlx::Row& row) const;
 
 public:

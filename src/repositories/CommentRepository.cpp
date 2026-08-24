@@ -18,19 +18,25 @@ Comment CommentRepository::mapRowToComment(const mysqlx::Row& row) const {
 
 std::vector<Comment> CommentRepository::getByPostId(int postId) {
     try {
-         mysqlx::Session& session = database_.getSession();
-         mysqlx::SqlResult result = session.sql("SELECT id, content, user_id, post_id, "
-                                                "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
-                                                "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
-                                                "FROM comments "
-                                                "WHERE post_id = ?").bind(postId).execute();
-         auto rows = result.fetchAll();
-         std::vector<Comment> postComments;
-         for (const mysqlx::Row& row : rows) {
-             postComments.push_back(mapRowToComment(row));
-         }
+        mysqlx::Session& session = database_.getSession();
+        const std::string sql = R"(
+            SELECT
+                id,
+                content,
+                user_id,
+                post_id,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'),
+                DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
+            FROM comments
+            WHERE post_id = ?)";
+        mysqlx::SqlResult result = session.sql(sql).bind(postId).execute();
+        auto rows = result.fetchAll();
+        std::vector<Comment> postComments;
+        for (const mysqlx::Row& row : rows) {
+            postComments.push_back(mapRowToComment(row));
+        }
 
-         return postComments;
+        return postComments;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("CommentRepository: Failed to retrieve comments by post id: " + std::string(error.what()));
@@ -39,18 +45,24 @@ std::vector<Comment> CommentRepository::getByPostId(int postId) {
 
 std::optional<Comment> CommentRepository::getById(int commentId) {
     try {
-         mysqlx::Session& session = database_.getSession();
-         mysqlx::SqlResult result = session.sql("SELECT id, content, user_id, post_id, "
-                                                "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
-                                                "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
-                                                "FROM comments "
-                                                "WHERE id = ?").bind(commentId).execute();
-         mysqlx::Row row= result.fetchOne();
-         if (!row)
-             return std::nullopt;
-         Comment comment = mapRowToComment(row);
+        mysqlx::Session& session = database_.getSession();
+        const std::string sql = R"(
+            SELECT
+                id,
+                content,
+                user_id,
+                post_id,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'),
+                DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
+            FROM comments
+            WHERE id = ?)";
+        mysqlx::SqlResult result = session.sql(sql).bind(commentId).execute();
+        mysqlx::Row row = result.fetchOne();
+        if (!row)
+            return std::nullopt;
+        Comment comment = mapRowToComment(row);
 
-         return comment;
+        return comment;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("CommentRepository: Failed to retrieve comment by comment id: " + std::string(error.what()));
@@ -59,17 +71,19 @@ std::optional<Comment> CommentRepository::getById(int commentId) {
 
 Comment CommentRepository::create(int userId, int postId, const std::string& content) {
     try {
-         mysqlx::Session& session = database_.getSession();
-         mysqlx::SqlResult result = session.sql("INSERT INTO comments (content, user_id, post_id) "
-                                                "VALUES(?, ?, ?)").bind(content, userId, postId).execute();
+        mysqlx::Session& session = database_.getSession();
+        const std::string sql = R"(
+            INSERT INTO comments (content, user_id, post_id)
+            VALUES(?, ?, ?))";
+        mysqlx::SqlResult result = session.sql(sql).bind(content, userId, postId).execute();
 
-         int commentId = static_cast<int>(result.getAutoIncrementValue());
-         auto comment = getById(commentId);
-         if (!comment) {
-             throw std::runtime_error("PostRepository: Created comment could not be retrieved");
-         }
+        int commentId = static_cast<int>(result.getAutoIncrementValue());
+        auto comment = getById(commentId);
+        if (!comment) {
+            throw std::runtime_error("PostRepository: Created comment could not be retrieved");
+        }
 
-         return comment.value();
+        return comment.value();
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("CommentRepository: Failed to create comment: " + std::string(error.what()));
@@ -78,12 +92,14 @@ Comment CommentRepository::create(int userId, int postId, const std::string& con
 
 bool CommentRepository::update(int commentId, const std::string& content) {
     try {
-         mysqlx::Session& session = database_.getSession();
-         mysqlx::SqlResult result = session.sql("UPDATE comments "
-                                                "SET content = ? "
-                                                "WHERE id = ?").bind(content, commentId).execute();
-          
-         return result.getAffectedItemsCount() > 0;
+        mysqlx::Session& session = database_.getSession();
+        const std::string sql = R"(
+            UPDATE comments
+            SET content = ?
+            WHERE id = ?)";
+        mysqlx::SqlResult result = session.sql(sql).bind(content, commentId).execute();
+
+        return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("CommentRepository: Failed to update comment: " + std::string(error.what()));
@@ -92,11 +108,13 @@ bool CommentRepository::update(int commentId, const std::string& content) {
 
 bool CommentRepository::remove(int commentId) {
     try {
-         mysqlx::Session& session = database_.getSession();
-         mysqlx::SqlResult result = session.sql("DELETE FROM comments "
-                                                "WHERE id = ?").bind(commentId).execute();
+        mysqlx::Session& session = database_.getSession();
+        const std::string sql = R"(
+            DELETE FROM comments
+            WHERE id = ?)";
+        mysqlx::SqlResult result = session.sql(sql).bind(commentId).execute();
 
-         return result.getAffectedItemsCount() > 0;
+        return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("CommentRepository: Failed to remove comment: " + std::string(error.what()));

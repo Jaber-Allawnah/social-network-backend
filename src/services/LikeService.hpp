@@ -13,6 +13,7 @@ private:
     FollowRepository& followRepository_;
     PostRepository& postRepository_;
     UserRepository& userRepository_;
+
     void validateUserPostsAccess(int postId, int requesterId);
 
 public:

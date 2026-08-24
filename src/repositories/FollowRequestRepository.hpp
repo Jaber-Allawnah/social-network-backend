@@ -10,6 +10,7 @@
 class FollowRequestRepository {
 private:
 	Database& database_;
+
 	FollowRequest mapRowToFollowRequest(const mysqlx::Row& row) const;
 
 public:

@@ -16,8 +16,6 @@
 #include "services/LikeService.hpp"
 #include "services/FollowService.hpp"
 
-
-
 std::string getEnvironmentVariable(const char* name) {
     const char* value = std::getenv(name);
 

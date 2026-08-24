@@ -19,9 +19,11 @@ FollowRequest FollowService::validatePendingRequest(int requestId, int receiverI
 	if (!followRequest) {
 		throw std::runtime_error("FollowService: Follow request not found");
 	}
+
 	if (followRequest.value().receiverId != receiverId) {
 		throw std::runtime_error("FollowService: User not authorized to modify this request");
 	}
+
 	if (followRequest.value().status != FollowRequestStatus::Pending) {
 		throw std::runtime_error("FollowService: Follow request is not pending");
 	}
@@ -33,18 +35,22 @@ bool FollowService::sendFollowRequest(int requesterId, int receiverId) {
 	if (requesterId == receiverId) {
 		throw std::runtime_error("FollowService: User cannot send a follow request to themselves");
 	}
+
 	auto requester = userRepository_.getById(requesterId);
 	if (!requester) {
 		throw std::runtime_error("FollowService: Requester not found");
 	}
+
 	auto receiver = userRepository_.getById(receiverId);
 	if (!receiver) {
 		throw std::runtime_error("FollowService: Receiver not found");
 	}
+
 	// If the users are currently following each other, do not allow another request.
 	if (followRepository_.isFollowing(requesterId, receiverId)) {
 		throw std::runtime_error("FollowService: User is already following this user");
 	}
+
 	// Reuse the existing request row because requester/receiver pairs are unique.
 	// Rejected requests can be sent again.
 	// An Accepted request reaches this point only if the users are no longer
@@ -57,7 +63,7 @@ bool FollowService::sendFollowRequest(int requesterId, int receiverId) {
 				(followRequest.value().status == FollowRequestStatus::Rejected ||
 				followRequest.value().status == FollowRequestStatus::Accepted)) {
 		return followRequestRepository_.update(followRequest.value().id, 
-												FollowRequestStatus::Pending);
+	  										   FollowRequestStatus::Pending);
 	}
 	
 	return followRequestRepository_.create(requesterId, receiverId);
@@ -99,6 +105,7 @@ bool FollowService::unfollow(int followerId, int followeeId) {
 	if (!follower) {
 		throw std::runtime_error("FollowService: follower not found");
 	}
+
 	auto followee = userRepository_.getById(followeeId);
 	if (!followee) {
 		throw std::runtime_error("FollowService: Followee not found");

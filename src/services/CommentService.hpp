@@ -11,6 +11,7 @@ private:
 	PostRepository& postRepository_;
 	FollowRepository& followRepository_;
 	UserRepository& userRepository_;
+
 	void validateCommentOwnership(int commentId, int userId, int postId);
 	void validateUserPostsAccess(int postId, int userId);
 	void validateUserExists(int userId);

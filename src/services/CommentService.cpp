@@ -14,9 +14,11 @@ void CommentService::validateCommentOwnership(int commentId, int userId, int pos
 	if (!comment) {
 		throw std::runtime_error("CommentService: Comment not found");
 	}
+
 	if (comment.value().postId != postId) {
 		throw std::runtime_error("CommentService: Comment does not belong to this post");
 	}
+
 	if (userId != comment.value().userId) {
 		throw std::runtime_error("CommentService: User not authorized to modify this comment");
 	}
@@ -44,6 +46,7 @@ void CommentService::validateUserExists(int userId) {
 Comment CommentService::create(int userId, int postId, const std::string& content) {
 	validateUserExists(userId);
 	validateUserPostsAccess(postId, userId);
+
 	if (content.empty()) {
 		throw std::runtime_error("CommentService: Can't add an empty comment");
 	}
@@ -55,6 +58,7 @@ bool CommentService::update(int userId, int commentId, int postId, const std::st
 	validateUserExists(userId);
 	validateCommentOwnership(commentId, userId, postId);
 	validateUserPostsAccess(postId, userId);
+
 	if (content.empty()) {
 		throw std::runtime_error("CommentService: Can't update a comment to an empty comment");
 	}

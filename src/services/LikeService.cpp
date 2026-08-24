@@ -29,6 +29,7 @@ void LikeService::validateUserPostsAccess(int postId, int requesterId) {
 
 bool LikeService::like(int requesterId, int postId) {
     validateUserPostsAccess(postId, requesterId);
+
     if (likeRepository_.hasLiked(requesterId, postId)) {
         throw std::runtime_error("LikeService: User has already liked this post");
     }
@@ -38,6 +39,7 @@ bool LikeService::like(int requesterId, int postId) {
 
 bool LikeService::unlike(int requesterId, int postId) {
     validateUserPostsAccess(postId, requesterId);
+
     if (!likeRepository_.hasLiked(requesterId, postId)) {
         throw std::runtime_error("LikeService: Like does not exist on the post");
     }
@@ -47,5 +49,6 @@ bool LikeService::unlike(int requesterId, int postId) {
 
 std::vector<User> LikeService::getUsersWhoLikedPost(int requesterId, int postId) {
     validateUserPostsAccess(postId, requesterId);
+
     return likeRepository_.getByPostId(postId);
 }

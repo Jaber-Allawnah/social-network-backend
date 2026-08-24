@@ -11,6 +11,7 @@
 class PostRepository {
 private:
 	Database& database_;
+
 	Post mapRowToPost(const mysqlx::Row& row) const;
 
 public:

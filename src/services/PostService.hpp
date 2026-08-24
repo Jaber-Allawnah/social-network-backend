@@ -9,6 +9,7 @@ private:
 	PostRepository& postRepository_;
 	FollowRepository& followRepository_;
 	UserRepository& userRepository_;
+
 	void validatePostOwnership(int postId, int requesterId);
 	void validateUserPostsAccess(int ownerId, int requesterId);
 

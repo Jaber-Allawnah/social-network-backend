@@ -18,6 +18,7 @@ void PostService::validatePostOwnership(int postId, int requesterId) {
 	if (!post) {
 		throw std::runtime_error("PostService: Post not found ");
 	}
+
 	if (post.value().userId != requesterId) {
 		throw std::runtime_error("PostService: User not authorized to modify this post ");
 	}
@@ -64,6 +65,7 @@ bool PostService::update(int postId, int requesterId, const std::string& content
 
 bool PostService::remove(int postId, int requesterId) {
 	validatePostOwnership(postId, requesterId);
+
 	return postRepository_.remove(postId);
 }
 
@@ -72,6 +74,7 @@ Post PostService::getPost(int postId, int requesterId) {
 	if (!post) {
 		throw std::runtime_error("PostService: Can't retrieve a non-existing post");
 	}
+
 	validateUserPostsAccess(post.value().userId, requesterId);
 
 	return post.value();
@@ -83,6 +86,7 @@ std::vector<Post> PostService::searchUserPosts(int ownerId, int requesterId, con
 	if (keyword.empty()) {
 		throw std::runtime_error("PostService: Can't search using an empty keyword");
 	}
+
 	return postRepository_.searchUserPosts(ownerId, keyword);
 }
 
