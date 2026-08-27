@@ -21,7 +21,9 @@ public:
 
 	std::vector<FollowRequest> getByRequesterId(int requesterId);
 	std::vector<FollowRequest> getByReceiverId(int receiverId);
+	std::vector<FollowRequest> getUserPendingRequests(int userId);
 	std::optional<FollowRequest> getById(int followRequestId);
 	std::optional<FollowRequest> getByUsers(int requesterId, int receiverId);
+
 
 };

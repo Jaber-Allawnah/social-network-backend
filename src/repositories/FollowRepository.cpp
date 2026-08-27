@@ -3,6 +3,7 @@
 #include "../utils/UserMapper.hpp"
 #include <stdexcept>
 
+using namespace UserMapper;
 FollowRepository::FollowRepository(Database& database) : database_(database) {}
 
 bool FollowRepository::follow(int followerId, int followeeId) {

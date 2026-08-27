@@ -4,6 +4,8 @@
 #include <mysqlx/xdevapi.h>
 #include <stdexcept>
 
+using namespace UserMapper;
+
 UserRepository::UserRepository(Database& database) : database_(database) {}
 
 std::optional<User> UserRepository::getById(int userId) {

@@ -3,6 +3,8 @@
 #include "../utils/UserMapper.hpp"
 #include <stdexcept>
 
+using namespace UserMapper;
+
 LikeRepository::LikeRepository(Database& database) : database_(database) {}
 
 std::vector<User> LikeRepository::getByPostId(int postId) {

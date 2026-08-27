@@ -133,3 +133,11 @@ std::vector<User> FollowService::getFollowing(int userId) {
 
 	return followRepository_.getFollowing(userId);
 }
+
+std::vector<FollowRequest> FollowService::getPendingIncomingRequests(int receiverId) {
+	if (!userRepository_.getById(receiverId)) {
+		throw std::runtime_error("FollowService: User not found");
+	}
+	
+	return followRequestRepository_.getUserPendingRequests(receiverId);
+}

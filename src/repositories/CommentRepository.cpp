@@ -2,6 +2,8 @@
 #include "../utils/DateTimeUtils.hpp"
 #include <stdexcept>
 
+using namespace DateTimeUtils;
+
 CommentRepository::CommentRepository(Database& database) : database_(database) {}
 
 Comment CommentRepository::mapRowToComment(const mysqlx::Row& row) const {
