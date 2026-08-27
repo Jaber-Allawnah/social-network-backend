@@ -12,7 +12,6 @@ struct LoggedOutResult {
 class LoggedOutMenu {
 private:
 	UserService& userService_;
-	FollowService& followService_;
 	ConnectionMenu& connectionMenu_;
 
 	int readChoice() const;
@@ -22,13 +21,10 @@ private:
 	std::optional<User> registerUser();
 	std::optional<User> login();
 
-	void viewFollowers(int currentUserId);
-	void viewFollowing(int currentUserId);
 	void displayUser(const User& user) const;
 
 public:
 	LoggedOutMenu(UserService& userService, 
-			      FollowService& followService,
 				  ConnectionMenu& connectionMenu);
 
 	LoggedOutResult run();

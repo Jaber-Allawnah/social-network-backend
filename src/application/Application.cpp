@@ -18,6 +18,7 @@ void Application::run() {
 				 LoggedInResult loggedInResult = loggedInMenu_.run(currentUser_->id);
 				 if (loggedInResult.shouldLogout)
 					 currentUser_ = std::nullopt;
+
 				 isRunning_ = !loggedInResult.shouldExit;
 			 }
 		}

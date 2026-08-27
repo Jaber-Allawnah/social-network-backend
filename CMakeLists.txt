@@ -44,7 +44,7 @@ add_executable(social_network_backend
     src/application/menu/ConnectionMenu.cpp
     src/application/menu/Menu.cpp 
     src/application/LoggedInMenu.cpp
-    src/application/LoggedOutmenu.cpp 
+    "src/application/LoggedOutMenu.cpp" 
     src/utils/MenuInputUtils.cpp)
 
 target_include_directories(social_network_backend

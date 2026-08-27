@@ -1,6 +1,6 @@
 #pragma once
 
-#include "./LoggedOutmenu.hpp"
+#include "./LoggedOutMenu.hpp"
 #include "./LoggedInMenu.hpp"
 #include <optional>
 

@@ -6,10 +6,8 @@
 using namespace MenuInputUtils;
 
 LoggedOutMenu::LoggedOutMenu(UserService& userService, 
-                             FollowService& followService,
                              ConnectionMenu& connectionMenu)
                            : userService_(userService),
-                             followService_(followService),
                              connectionMenu_(connectionMenu){}
 
 void LoggedOutMenu::displayMenu() const {
@@ -105,37 +103,4 @@ std::optional<User> LoggedOutMenu::login() {
     }
 
     return userService_.login(email, password);
-}
-
-void LoggedOutMenu::viewFollowers(int userId) {
-    std::vector<User> followers = followService_.getFollowers(userId);
-
-    if (followers.empty()) {
-        std::cout << "This user does not have any followers.\n";
-        return;
-    }
-
-    for (const User& user : followers) {
-        displayUser(user);
-    }
-}
-
-void LoggedOutMenu::viewFollowing(int userId) {
-    std::vector<User> following = followService_.getFollowing(userId);
-
-    if (following.empty()) {
-        std::cout << "This user does not follow anyone\n";
-        return;
-    }
-
-    for (const User& user : following) {
-        displayUser(user);
-    }
-}
-
-void LoggedOutMenu::displayUser(const User& user) const {
-    std::cout << "User ID: " << user.id
-              << " | Username: " << user.username
-              << " | Email: " << user.email
-              << '\n';
 }

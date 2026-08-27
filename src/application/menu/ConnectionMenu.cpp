@@ -25,7 +25,6 @@ void ConnectionMenu::displayMenu() const {
 
 void ConnectionMenu::viewFollowers(int userId) {
     std::vector<User> followers = followService_.getFollowers(userId);
-
     if (followers.empty()) {
         std::cout << "No followers.\n";
         return;
@@ -38,7 +37,6 @@ void ConnectionMenu::viewFollowers(int userId) {
 
 void ConnectionMenu::viewFollowing(int userId) {
     std::vector<User> following = followService_.getFollowing(userId);
-
     if (following.empty()) {
         std::cout << "Not following anyone.\n";
         return;

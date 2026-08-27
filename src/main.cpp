@@ -20,7 +20,7 @@
 #include "application/menu/LikeMenu.hpp"
 #include "application/menu/FollowMenu.hpp"
 #include "application/menu/ConnectionMenu.hpp"
-#include "application/LoggedOutmenu.hpp"
+#include "application/LoggedOutMenu.hpp"
 #include "application/LoggedInMenu.hpp"
 #include "application/Application.hpp"
 
@@ -57,7 +57,7 @@ int main() {
         FollowRequestRepository followRequestRepository(database);
         FollowRepository followRepository(database);
 
-        //Services
+        // Services
         UserService userService(userRepository);
 
         PostService postService(postRepository,
@@ -86,7 +86,6 @@ int main() {
         FollowMenu followMenu(followService);
         ConnectionMenu connectionMenu(followService);
         LoggedOutMenu loggedOutMenu(userService, 
-                                    followService, 
                                     connectionMenu);
         LoggedInMenu loggedInMenu(postMenu,
                                   commentMenu,
