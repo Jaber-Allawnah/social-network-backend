@@ -21,9 +21,6 @@ void Application::run() {
 				 isRunning_ = !loggedInResult.shouldExit;
 			 }
 		}
-		catch (const std::runtime_error& error) {
-			std::cout << "Error: " << error.what() << "\n";
-		}
 		catch (const std::exception& error) {
 			std::cout << "Error: " << error.what() << "\n";
 		}

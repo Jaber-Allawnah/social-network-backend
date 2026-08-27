@@ -17,5 +17,5 @@ private:
 
 	void displayUser(const User& user) const;
 public:
-	LikeMenu(LikeService& likeSerive);
+	LikeMenu(LikeService& likeService);
 };

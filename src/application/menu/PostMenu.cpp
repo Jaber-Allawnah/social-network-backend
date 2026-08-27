@@ -34,7 +34,7 @@ void PostMenu::createPost(int currentUserId) {
     std::string content = readNonEmptyLine("Enter post content: ",
                                            "Post content cannot be empty. Please try again: ");
 
-    postService_.create(currentUserId, content);
+    displayPost(postService_.create(currentUserId, content));
     std::cout << "Post created successfully.\n";
 }
 

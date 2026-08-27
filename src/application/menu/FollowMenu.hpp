@@ -15,6 +15,8 @@ private:
 	void acceptFollowRequest(int currentUserId);
 	void rejectFollowRequest(int currentUserId);
 
+	void viewPendingIncomingRequests(int currentUserId);
+	void displayFollowRequest(const FollowRequest& request) const;
 public:
 	FollowMenu(FollowService& followService);
 };

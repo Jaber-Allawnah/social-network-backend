@@ -158,6 +158,35 @@ std::optional<FollowRequest> FollowRequestRepository::getByUsers(int requesterId
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("FollowRequestRepository: Failed to retrieve follow request: " +
-            std::string(error.what()));
+                                 std::string(error.what()));
+    }
+}
+
+std::vector<FollowRequest> FollowRequestRepository::getUserPendingRequests(int userId) {
+    try {
+         mysqlx::Session& session = database_.getSession();
+         const std::string sql = R"(
+            SELECT
+                id,
+                requester_id,
+                receiver_id,
+                status,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'),
+                DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
+            FROM follow_requests
+            WHERE receiver_id = ? AND status = 'pending')";
+
+         mysqlx::SqlResult result = session.sql(sql).bind(userId).execute();
+         auto rows = result.fetchAll();
+         std::vector<FollowRequest> pendingRequests;
+         for (const mysqlx::Row& row : rows) {
+             pendingRequests.push_back(mapRowToFollowRequest(row));
+         }
+
+         return pendingRequests;
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("FollowRequestRepository: Failed to retrieve pending follow requests: " +
+                                 std::string(error.what()));
     }
 }

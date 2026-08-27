@@ -25,6 +25,7 @@ public:
 	bool rejectFollowRequest(int requestId, int receiverId);
 	bool unfollow(int followerId, int followeeId);
 
+	std::vector<FollowRequest> getPendingIncomingRequests(int receiverId);
 	std::vector<User> getFollowers(int userId);
 	std::vector<User> getFollowing(int userId);
 };

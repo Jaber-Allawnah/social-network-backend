@@ -1,13 +1,21 @@
 #include "LoggedOutMenu.hpp"
+#include "../utils/MenuInputUtils.hpp"
 #include <iostream>
 
-LoggedOutMenu::LoggedOutMenu(UserService& userService) : userService_(userService) {}
+using namespace MenuInputUtils;
+
+LoggedOutMenu::LoggedOutMenu(UserService& userService, 
+                             FollowService& followService) 
+                           : userService_(userService),
+                             followService_(followService){}
 
 void LoggedOutMenu::displayMenu() const {
     std::cout << "\nLogged Out Menu\n"
               << "1. Register\n"
               << "2. Login\n"
-              << "3. Exit\n"
+              << "3. See user's followers\n"
+              << "4. See user's following\n"
+              << "5. Exit\n"
               << "Enter your choice: ";
 }
 
@@ -35,6 +43,12 @@ LoggedOutResult LoggedOutMenu::handleChoice(int choice) {
         logoutResult.user = login();
         break;
     case 3:
+        viewFollowers(readId("Please enter the user ID: "));
+        break;
+    case 4:
+        viewFollowing(readId("Please enter the user ID: "));
+        break;
+    case 5:
         logoutResult.shouldExit = true;
         break;
     default:
@@ -88,4 +102,37 @@ std::optional<User> LoggedOutMenu::login() {
     }
 
     return userService_.login(email, password);
+}
+
+void LoggedOutMenu::viewFollowers(int userId) {
+    std::vector<User> followers = followService_.getFollowers(userId);
+
+    if (followers.empty()) {
+        std::cout << "This user does not have any followers.\n";
+        return;
+    }
+
+    for (const User& user : followers) {
+        displayUser(user);
+    }
+}
+
+void LoggedOutMenu::viewFollowing(int userId) {
+    std::vector<User> following = followService_.getFollowing(userId);
+
+    if (following.empty()) {
+        std::cout << "This user does not follow anyone\n";
+        return;
+    }
+
+    for (const User& user : following) {
+        displayUser(user);
+    }
+}
+
+void LoggedOutMenu::displayUser(const User& user) const {
+    std::cout << "User ID: " << user.id
+              << " | Username: " << user.username
+              << " | Email: " << user.email
+              << '\n';
 }

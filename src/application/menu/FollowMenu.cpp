@@ -1,8 +1,12 @@
 #include "FollowMenu.hpp"
 #include "../../utils/MenuInputUtils.hpp"
+#include "../../utils/FollowRequestStatusUtils.hpp"
+#include "../../utils/DateTimeUtils.hpp"
 #include <iostream>
 
 using namespace MenuInputUtils;
+using namespace DateTimeUtils;
+using namespace FollowRequestStatusUtils;
 
 FollowMenu::FollowMenu(FollowService& followService) : followService_(followService) {}
 
@@ -12,7 +16,8 @@ void FollowMenu::displayMenu() const {
               << "2. Accept Follow Request\n"
               << "3. Reject Follow Request\n"
               << "4. Unfollow User\n"
-              << "5. Back\n"
+              << "5. View Pending Incoming Requests\n"
+              << "6. Back\n"
               << "Enter your choice: ";
 }
 
@@ -39,7 +44,7 @@ void FollowMenu::unfollowUser(int currentUserId) {
 void FollowMenu::acceptFollowRequest(int currentUserId) {
     int requestId = readId("Enter the ID of the follow request you want to accept: ");
 
-    if (!followService_.acceptFollowRequest(currentUserId, requestId)) {
+    if (!followService_.acceptFollowRequest(requestId, currentUserId)) {
         std::cout << "Failed to accept follow request.\n";
         return;
     }
@@ -49,11 +54,33 @@ void FollowMenu::acceptFollowRequest(int currentUserId) {
 void FollowMenu::rejectFollowRequest(int currentUserId) {
     int requestId = readId("Enter the ID of the follow request you want to reject: ");
 
-    if (!followService_.rejectFollowRequest(currentUserId, requestId)) {
+    if (!followService_.rejectFollowRequest(requestId, currentUserId)) {
         std::cout << "Failed to reject follow request.\n";
         return;
     }
     std::cout << "Follow request rejected successfully.\n";
+}
+
+void FollowMenu::displayFollowRequest(const FollowRequest& request) const {
+    std::cout << "Request ID: " << request.id
+              << " | Requester ID: " << request.requesterId
+              << " | Receiver ID: " << request.receiverId
+              << " | Status: " << FollowRequestStatusUtils::followRequestStatusToString(request.status)
+              << " | Created At: " << DateTimeUtils::formatDateTime(request.createdAt)
+              << " | Updated At: " << DateTimeUtils::formatDateTime(request.updatedAt)
+              << '\n';
+
+}
+void FollowMenu::viewPendingIncomingRequests(int currentUserId) {
+    std::vector<FollowRequest> pendingFollowRequests = followService_.getPendingIncomingRequests(currentUserId);
+    if (pendingFollowRequests.empty()) {
+        std::cout << "You have no pending follow requests \n";
+        return;
+    }
+    
+    for (const FollowRequest& followRequest : pendingFollowRequests) {
+        displayFollowRequest(followRequest);
+    }
 }
 
 void FollowMenu::handleChoice(int choice, int currentUserId) {
@@ -71,6 +98,9 @@ void FollowMenu::handleChoice(int choice, int currentUserId) {
         unfollowUser(currentUserId);
         break;
     case 5:
+        viewPendingIncomingRequests(currentUserId);
+        break;
+    case 6:
         break;
     default:
         std::cout << "Please enter a valid option.\n";

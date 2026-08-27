@@ -1,6 +1,7 @@
 #include "UserService.hpp"
 #include <stdexcept>
 #include "../utils/PasswordHasher.hpp"
+#include <iostream>
 
 using namespace PasswordUtils;
 
@@ -9,6 +10,10 @@ UserService::UserService(UserRepository& userRepository) : userRepository_(userR
 User UserService::registerUser(const std::string& username,
                                const std::string& email,
                                const std::string& password) {
+    if (username.empty() || email.empty() || password.empty()) {
+        throw std::runtime_error("User Service: Inputs can't be empty");
+    }
+
     if (userRepository_.getByEmail(email)) {
         throw std::runtime_error("User Service: Email is already in use");
     }

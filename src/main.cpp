@@ -85,7 +85,7 @@ int main() {
         LikeMenu likeMenu(likeService);
         FollowMenu followMenu(followService);
         ConnectionMenu connectionMenu(followService);
-        LoggedOutMenu loggedOutMenu(userService);
+        LoggedOutMenu loggedOutMenu(userService, followService);
         LoggedInMenu loggedInMenu(postMenu,
                                   commentMenu,
                                   likeMenu,

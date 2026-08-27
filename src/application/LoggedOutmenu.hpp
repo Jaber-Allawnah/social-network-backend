@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../services/UserService.hpp"
+#include "../services/FollowService.hpp"
 
 struct LoggedOutResult {
 	std::optional<User> user;
@@ -10,6 +11,7 @@ struct LoggedOutResult {
 class LoggedOutMenu {
 private:
 	UserService& userService_;
+	FollowService& followService_;
 
 	int readChoice() const;
 	void displayMenu() const;
@@ -18,8 +20,12 @@ private:
 	std::optional<User> registerUser();
 	std::optional<User> login();
 
+	void viewFollowers(int currentUserId);
+	void viewFollowing(int currentUserId);
+	void displayUser(const User& user) const;
+
 public:
-	LoggedOutMenu(UserService& userService);
+	LoggedOutMenu(UserService& userService, FollowService& followService);
 
 	LoggedOutResult run();
 };
