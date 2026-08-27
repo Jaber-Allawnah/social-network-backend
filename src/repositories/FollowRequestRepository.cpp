@@ -1,9 +1,6 @@
 #include "./FollowRequestRepository.hpp"
 #include "../utils/DateTimeUtils.hpp"
 #include "../utils/FollowRequestStatusUtils.hpp"
-#include <ctime>
-#include <iomanip>
-#include <sstream>
 #include <stdexcept>
 
 FollowRequestRepository::FollowRequestRepository(Database& database) : database_(database) {}
@@ -20,11 +17,15 @@ FollowRequest FollowRequestRepository::mapRowToFollowRequest(const mysqlx::Row& 
     return followRequest;
 }
 
-void FollowRequestRepository::create(int requesterId, int receiverId) {
+bool FollowRequestRepository::create(int requesterId, int receiverId) {
     try {
         mysqlx::Session& session = database_.getSession();
-        session.sql("INSERT INTO follow_requests (requester_id, receiver_id) "
-                    "VALUES (?, ?)").bind(requesterId, receiverId).execute();
+        const std::string sql = R"(
+            INSERT INTO follow_requests (requester_id, receiver_id)
+            VALUES (?, ?))";
+        mysqlx::SqlResult result = session.sql(sql).bind(requesterId, receiverId).execute();
+
+        return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("FollowRequestRepository: Failed to create follow request: " + std::string(error.what()));
@@ -34,11 +35,17 @@ void FollowRequestRepository::create(int requesterId, int receiverId) {
 std::vector<FollowRequest> FollowRequestRepository::getByRequesterId(int requesterId) {
     try {
         mysqlx::Session& session = database_.getSession();
-        mysqlx::SqlResult result = session.sql("SELECT id, requester_id, receiver_id, status, "
-                                               "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
-                                               "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
-                                               "FROM follow_requests "
-                                               "WHERE requester_id = ?").bind(requesterId).execute();
+        const std::string sql = R"(
+            SELECT
+                id,
+                requester_id,
+                receiver_id,
+                status,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'),
+                DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
+            FROM follow_requests
+            WHERE requester_id = ?)";
+        mysqlx::SqlResult result = session.sql(sql).bind(requesterId).execute();
         auto rows = result.fetchAll();
         std::vector<FollowRequest> followRequests;
         for (const mysqlx::Row& row : rows) {
@@ -55,11 +62,17 @@ std::vector<FollowRequest> FollowRequestRepository::getByRequesterId(int request
 std::vector<FollowRequest> FollowRequestRepository::getByReceiverId(int receiverId) {
     try {
         mysqlx::Session& session = database_.getSession();
-        mysqlx::SqlResult result = session.sql("SELECT id, requester_id, receiver_id, status, "
-                                               "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
-                                               "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
-                                               "FROM follow_requests "
-                                               "WHERE receiver_id = ?").bind(receiverId).execute();
+        const std::string sql = R"(
+            SELECT
+                id,
+                requester_id,
+                receiver_id,
+                status,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'),
+                DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
+            FROM follow_requests
+            WHERE receiver_id = ?)";
+        mysqlx::SqlResult result = session.sql(sql).bind(receiverId).execute();
         auto rows = result.fetchAll();
         std::vector<FollowRequest> followRequests;
         for (const mysqlx::Row& row : rows) {
@@ -76,11 +89,17 @@ std::vector<FollowRequest> FollowRequestRepository::getByReceiverId(int receiver
 std::optional<FollowRequest> FollowRequestRepository::getById(int followRequestId) {
     try {
         mysqlx::Session& session = database_.getSession();
-        mysqlx::SqlResult result = session.sql("SELECT id, requester_id, receiver_id, status, "
-                                               "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'), "
-                                               "DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s') "
-                                               "FROM follow_requests "
-                                               "WHERE id = ?").bind(followRequestId).execute();
+        const std::string sql = R"(
+            SELECT
+                id,
+                requester_id,
+                receiver_id,
+                status,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'),
+                DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
+            FROM follow_requests
+            WHERE id = ?)";
+        mysqlx::SqlResult result = session.sql(sql).bind(followRequestId).execute();
         mysqlx::Row row = result.fetchOne();
         if (!row)
             return std::nullopt;
@@ -96,15 +115,46 @@ std::optional<FollowRequest> FollowRequestRepository::getById(int followRequestI
 
 bool FollowRequestRepository::update(int followRequestId, FollowRequestStatus status) {
     try {
-         mysqlx::Session& session = database_.getSession();
-         std::string statusValue = followRequestStatusToString(status);
-         mysqlx::SqlResult result = session.sql("UPDATE follow_requests "
-                                                "SET status = ? "
-                                                "WHERE id = ?").bind(statusValue, followRequestId).execute();
+        mysqlx::Session& session = database_.getSession();
+        std::string statusValue = followRequestStatusToString(status);
+        const std::string sql = R"(
+            UPDATE follow_requests
+            SET status = ?
+            WHERE id = ?)";
+        mysqlx::SqlResult result = session.sql(sql).bind(statusValue, followRequestId).execute();
 
-         return result.getAffectedItemsCount() > 0;
+        return result.getAffectedItemsCount() > 0;
     }
     catch (const mysqlx::Error& error) {
         throw std::runtime_error("FollowRequestRepository: Failed to update follow request status: " + std::string(error.what()));
+    }
+}
+
+std::optional<FollowRequest> FollowRequestRepository::getByUsers(int requesterId, int receiverId) {
+    try {
+        mysqlx::Session& session = database_.getSession();
+        const std::string sql = R"(
+            SELECT
+                id,
+                requester_id,
+                receiver_id,
+                status,
+                DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s'),
+                DATE_FORMAT(updated_at, '%Y-%m-%d %H:%i:%s')
+            FROM follow_requests
+            WHERE requester_id = ?
+               AND receiver_id = ?)";
+
+        mysqlx::SqlResult result = session.sql(sql).bind(requesterId, receiverId).execute();
+        mysqlx::Row row = result.fetchOne();
+        if (!row) {
+            return std::nullopt;
+        }
+
+        return mapRowToFollowRequest(row);
+    }
+    catch (const mysqlx::Error& error) {
+        throw std::runtime_error("FollowRequestRepository: Failed to retrieve follow request: " +
+            std::string(error.what()));
     }
 }

@@ -12,26 +12,47 @@ set(
     CACHE PATH "Path to MySQL Connector/C++ installation"
 )
 
+set(
+    LIBSODIUM_ROOT
+    "C:/Users/Hp/Desktop/libsodium-1.0.22-stable-msvc/libsodium"
+    CACHE PATH "Path to libsodium installation"
+)
+
 add_executable(social_network_backend
     src/main.cpp
     src/database/Database.cpp
     src/repositories/UserRepository.cpp
     src/repositories/PostRepository.cpp
-    src/repositories/CommentRepository.cpp 
-    src/repositories/LikeRepository.cpp 
-    src/repositories/FollowRequestRepository.cpp 
-    src/repositories/FollowRepository.cpp 
+    src/repositories/CommentRepository.cpp
+    src/repositories/LikeRepository.cpp
+    src/repositories/FollowRequestRepository.cpp
+    src/repositories/FollowRepository.cpp
     src/utils/DateTimeUtils.cpp
-    src/utils/UserMapper.cpp "src/utils/FollowRequestStatusUtils.cpp")
+    src/utils/UserMapper.cpp
+    src/utils/FollowRequestStatusUtils.cpp
+    src/services/UserService.cpp
+    src/services/PostService.cpp
+    src/services/CommentService.cpp
+    src/services/LikeService.cpp
+    src/services/FollowService.cpp
+    src/utils/PasswordHasher.cpp)
 
 target_include_directories(social_network_backend
     PRIVATE
         "${MYSQL_CONCPP_ROOT}/include"
+        "${LIBSODIUM_ROOT}/include"
+)
+
+target_compile_definitions(social_network_backend
+    PRIVATE
+        SODIUM_STATIC=1
+        SODIUM_EXPORT=
 )
 
 target_link_libraries(social_network_backend
     PRIVATE
         "${MYSQL_CONCPP_ROOT}/lib64/vs14/mysqlcppconnx.lib"
+        "${LIBSODIUM_ROOT}/x64/Release/v143/static/libsodium.lib"
 )
 
 add_custom_command(

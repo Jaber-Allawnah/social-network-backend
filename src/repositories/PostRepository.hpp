@@ -11,6 +11,7 @@
 class PostRepository {
 private:
 	Database& database_;
+
 	Post mapRowToPost(const mysqlx::Row& row) const;
 
 public:
@@ -19,8 +20,9 @@ public:
 	std::optional<Post> getById(int postId);
 	std::vector<Post> getByUserId(int userId);
 	std::vector<Post> searchUserPosts(int userId, const std::string& content);
+	std::vector<Post> getUserFeed(int userId);
 
-	void create(int userId, const std::string& content);
+	Post create(int userId, const std::string& content);
 	bool update(int postId, const std::string& content);
 	bool remove(int postId);
 };
