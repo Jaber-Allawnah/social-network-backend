@@ -35,7 +35,17 @@ add_executable(social_network_backend
     src/services/CommentService.cpp
     src/services/LikeService.cpp
     src/services/FollowService.cpp
-    src/utils/PasswordHasher.cpp)
+    src/utils/PasswordHasher.cpp 
+    src/application/Application.cpp 
+    src/application/menu/PostMenu.cpp
+    src/application/menu/CommentMenu.cpp
+    src/application/menu/LikeMenu.cpp
+    src/application/menu/FollowMenu.cpp
+    src/application/menu/ConnectionMenu.cpp
+    src/application/menu/Menu.cpp 
+    src/application/LoggedInMenu.cpp
+    src/application/LoggedOutmenu.cpp 
+    src/utils/MenuInputUtils.cpp)
 
 target_include_directories(social_network_backend
     PRIVATE

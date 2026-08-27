@@ -3,6 +3,9 @@
 #include "../utils/FollowRequestStatusUtils.hpp"
 #include <stdexcept>
 
+using namespace DateTimeUtils;
+using namespace FollowRequestStatusUtils;
+
 FollowRequestRepository::FollowRequestRepository(Database& database) : database_(database) {}
 
 FollowRequest FollowRequestRepository::mapRowToFollowRequest(const mysqlx::Row& row) const {

@@ -15,6 +15,14 @@
 #include "services/CommentService.hpp"
 #include "services/LikeService.hpp"
 #include "services/FollowService.hpp"
+#include "application/menu/PostMenu.hpp"
+#include "application/menu/CommentMenu.hpp"
+#include "application/menu/LikeMenu.hpp"
+#include "application/menu/FollowMenu.hpp"
+#include "application/menu/ConnectionMenu.hpp"
+#include "application/LoggedOutmenu.hpp"
+#include "application/LoggedInMenu.hpp"
+#include "application/Application.hpp"
 
 std::string getEnvironmentVariable(const char* name) {
     const char* value = std::getenv(name);
@@ -34,11 +42,65 @@ int main() {
         const std::string password = getEnvironmentVariable("DB_PASSWORD");
         const std::string databaseName = getEnvironmentVariable("DB_NAME");
 
+        // Database
         Database database(host,
                           port,
                           username,
                           password,
                           databaseName);
+
+        // Repositories
+        UserRepository userRepository(database);
+        PostRepository postRepository(database);
+        CommentRepository commentRepository(database);
+        LikeRepository likeRepository(database);
+        FollowRequestRepository followRequestRepository(database);
+        FollowRepository followRepository(database);
+
+        //Services
+        UserService userService(userRepository);
+
+        PostService postService(postRepository,
+                                followRepository,
+                                userRepository);
+
+        CommentService commentService(commentRepository,
+                                      postRepository,
+                                      followRepository,
+                                      userRepository);
+
+        LikeService likeService(likeRepository,
+                                followRepository,
+                                postRepository,
+                                userRepository);
+
+        FollowService followService(followRepository,
+                                    followRequestRepository,
+                                    userRepository,
+                                    database);
+
+        // Menus
+        PostMenu postMenu(postService);
+        CommentMenu commentMenu(commentService);
+        LikeMenu likeMenu(likeService);
+        FollowMenu followMenu(followService);
+        ConnectionMenu connectionMenu(followService);
+        LoggedOutMenu loggedOutMenu(userService);
+        LoggedInMenu loggedInMenu(postMenu,
+                                  commentMenu,
+                                  likeMenu,
+                                  followMenu,
+                                  connectionMenu,
+                                  postService);
+
+        // Application
+        Application application(
+            loggedOutMenu,
+            loggedInMenu
+        );
+
+        application.run();
+
     }
     catch (const std::exception& error) {
         std::cerr << error.what() << std::endl;

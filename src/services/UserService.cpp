@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include "../utils/PasswordHasher.hpp"
 
+using namespace PasswordUtils;
+
 UserService::UserService(UserRepository& userRepository) : userRepository_(userRepository) { }
 
 User UserService::registerUser(const std::string& username,

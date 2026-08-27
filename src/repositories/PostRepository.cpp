@@ -3,6 +3,8 @@
 #include <mysqlx/xdevapi.h>
 #include <stdexcept>
 
+using namespace DateTimeUtils;
+
 PostRepository::PostRepository(Database& database) : database_(database) {}
 
 Post PostRepository::mapRowToPost(const mysqlx::Row& row) const {
