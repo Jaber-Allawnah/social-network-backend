@@ -1,13 +1,16 @@
 #include "LoggedOutMenu.hpp"
 #include "../utils/MenuInputUtils.hpp"
+
 #include <iostream>
 
 using namespace MenuInputUtils;
 
 LoggedOutMenu::LoggedOutMenu(UserService& userService, 
-                             FollowService& followService) 
+                             FollowService& followService,
+                             ConnectionMenu& connectionMenu)
                            : userService_(userService),
-                             followService_(followService){}
+                             followService_(followService),
+                             connectionMenu_(connectionMenu){}
 
 void LoggedOutMenu::displayMenu() const {
     std::cout << "\nLogged Out Menu\n"
@@ -43,10 +46,10 @@ LoggedOutResult LoggedOutMenu::handleChoice(int choice) {
         logoutResult.user = login();
         break;
     case 3:
-        viewFollowers(readId("Please enter the user ID: "));
+        connectionMenu_.viewFollowers(readId("Please enter the user ID: "));
         break;
     case 4:
-        viewFollowing(readId("Please enter the user ID: "));
+        connectionMenu_.viewFollowing(readId("Please enter the user ID: "));
         break;
     case 5:
         logoutResult.shouldExit = true;

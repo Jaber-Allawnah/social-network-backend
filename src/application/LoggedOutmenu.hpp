@@ -2,6 +2,7 @@
 
 #include "../services/UserService.hpp"
 #include "../services/FollowService.hpp"
+#include "./menu/ConnectionMenu.hpp"
 
 struct LoggedOutResult {
 	std::optional<User> user;
@@ -12,6 +13,7 @@ class LoggedOutMenu {
 private:
 	UserService& userService_;
 	FollowService& followService_;
+	ConnectionMenu& connectionMenu_;
 
 	int readChoice() const;
 	void displayMenu() const;
@@ -25,7 +27,9 @@ private:
 	void displayUser(const User& user) const;
 
 public:
-	LoggedOutMenu(UserService& userService, FollowService& followService);
+	LoggedOutMenu(UserService& userService, 
+			      FollowService& followService,
+				  ConnectionMenu& connectionMenu);
 
 	LoggedOutResult run();
 };
