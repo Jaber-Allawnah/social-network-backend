@@ -18,45 +18,64 @@ set(
     CACHE PATH "Path to libsodium installation"
 )
 
+set(
+    SPDLOG_ROOT
+    "C:/Users/Hp/.conan2/p/b/spdloa78a2210c1da2/b/src"
+    CACHE PATH "Path to spdlog installation"
+)
+
 add_executable(social_network_backend
     src/main.cpp
     src/database/Database.cpp
+
     src/repositories/UserRepository.cpp
     src/repositories/PostRepository.cpp
     src/repositories/CommentRepository.cpp
     src/repositories/LikeRepository.cpp
     src/repositories/FollowRequestRepository.cpp
     src/repositories/FollowRepository.cpp
+
     src/utils/DateTimeUtils.cpp
     src/utils/UserMapper.cpp
     src/utils/FollowRequestStatusUtils.cpp
+    src/utils/PasswordHasher.cpp
+    src/utils/MenuInputUtils.cpp
+    src/utils/Logger.cpp
+
     src/services/UserService.cpp
     src/services/PostService.cpp
     src/services/CommentService.cpp
     src/services/LikeService.cpp
     src/services/FollowService.cpp
-    src/utils/PasswordHasher.cpp 
-    src/application/Application.cpp 
+
+    src/application/Application.cpp
+    src/application/LoggedInMenu.cpp
+    src/application/LoggedOutMenu.cpp
+
+    src/application/menu/Menu.cpp
     src/application/menu/PostMenu.cpp
     src/application/menu/CommentMenu.cpp
     src/application/menu/LikeMenu.cpp
     src/application/menu/FollowMenu.cpp
     src/application/menu/ConnectionMenu.cpp
-    src/application/menu/Menu.cpp 
-    src/application/LoggedInMenu.cpp
-    "src/application/LoggedOutMenu.cpp" 
-    src/utils/MenuInputUtils.cpp)
+)
 
 target_include_directories(social_network_backend
     PRIVATE
         "${MYSQL_CONCPP_ROOT}/include"
         "${LIBSODIUM_ROOT}/include"
+        "${SPDLOG_ROOT}/include"
 )
 
 target_compile_definitions(social_network_backend
     PRIVATE
         SODIUM_STATIC=1
         SODIUM_EXPORT=
+)
+
+target_compile_options(social_network_backend
+    PRIVATE
+        /utf-8
 )
 
 target_link_libraries(social_network_backend

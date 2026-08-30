@@ -2,12 +2,15 @@
 #include "../utils/DateTimeUtils.hpp"
 #include "../utils/UserMapper.hpp"
 #include <stdexcept>
+#include <spdlog/spdlog.h>
 
 using namespace UserMapper;
 
 LikeRepository::LikeRepository(Database& database) : database_(database) {}
 
 std::vector<User> LikeRepository::getByPostId(int postId) {
+    spdlog::debug("Retrieving users who liked post {} from database", postId);
+
     try {
         mysqlx::Session& session = database_.getSession();
         const std::string sql = R"(
@@ -30,14 +33,20 @@ std::vector<User> LikeRepository::getByPostId(int postId) {
             users.push_back(mapRowToUser(row));
         }
 
+        spdlog::debug("Retrieved {} users who liked post {} from database", users.size(), postId);
+
         return users;
     }
     catch (const mysqlx::Error& error) {
-        throw std::runtime_error("LikeRepository: Failed to retrieve users who liked the post by post id: " + std::string(error.what()));
+        spdlog::error("Failed to retrieve users who liked post {} from database: {}", postId, error.what());
+        throw std::runtime_error("LikeRepository: Failed to retrieve users who liked the post by post id: " + 
+                                 std::string(error.what()));
     }
 }
 
 bool LikeRepository::like(int userId, int postId) {
+    spdlog::debug("Creating like from user {} on post {} in database", userId, postId);
+
     try {
         mysqlx::Session& session = database_.getSession();
         const std::string sql = R"(
@@ -46,14 +55,20 @@ bool LikeRepository::like(int userId, int postId) {
 
         mysqlx::SqlResult result = session.sql(sql).bind(userId, postId).execute();
 
-        return result.getAffectedItemsCount() > 0;
+        bool liked = result.getAffectedItemsCount() > 0;
+        spdlog::debug("Like creation result for user {} on post {}: {}", userId, postId, liked);
+
+        return liked;
     }
     catch (const mysqlx::Error& error) {
+        spdlog::error("Failed to create like from user {} on post {} in database: {}", userId, postId, error.what());
         throw std::runtime_error("LikeRepository: Failed to like post: " + std::string(error.what()));
     }
 }
 
 bool LikeRepository::unlike(int userId, int postId) {
+    spdlog::debug("Removing like from user {} on post {} from database", userId, postId);
+
     try {
         mysqlx::Session& session = database_.getSession();
         const std::string sql = R"(
@@ -63,14 +78,20 @@ bool LikeRepository::unlike(int userId, int postId) {
 
         mysqlx::SqlResult result = session.sql(sql).bind(postId, userId).execute();
 
-        return result.getAffectedItemsCount() > 0;
+        bool unliked = result.getAffectedItemsCount() > 0;
+        spdlog::debug("Like removal result for user {} on post {}: {}", userId, postId, unliked);
+
+        return unliked;
     }
     catch (const mysqlx::Error& error) {
+        spdlog::error("Failed to remove like from user {} on post {} from database: {}", userId, postId, error.what());
         throw std::runtime_error("LikeRepository: Failed to unlike post: " + std::string(error.what()));
     }
 }
 
 bool LikeRepository::hasLiked(int userId, int postId) {
+    spdlog::debug("Checking whether user {} liked post {} in database", userId, postId);
+
     try {
         mysqlx::Session& session = database_.getSession();
 
@@ -83,10 +104,14 @@ bool LikeRepository::hasLiked(int userId, int postId) {
 
         mysqlx::SqlResult result = session.sql(sql).bind(userId, postId).execute();
 
-        return result.fetchOne();
+        bool hasLiked = static_cast<bool>(result.fetchOne());
+        spdlog::debug("Like existence check for user {} on post {}: {}", userId, postId, hasLiked);
+
+        return hasLiked;
     }
     catch (const mysqlx::Error& error) {
+        spdlog::error("Failed to check whether user {} liked post {} in database: {}", userId, postId, error.what());
         throw std::runtime_error("LikeRepository: Failed to check if user liked post: " +
-            std::string(error.what()));
+                                 std::string(error.what()));
     }
 }
