@@ -3,18 +3,18 @@
 #include <spdlog/spdlog.h>
 
 Database::Database(const std::string& host,
-	unsigned port,
-	const std::string& username,
-	const std::string& password,
-	const std::string& databaseName) {
+				   unsigned port,
+				   const std::string& username,
+				   const std::string& password,
+				   const std::string& databaseName) {
 	spdlog::debug("Attempting database connection to {}:{} for database {}", host, port, databaseName);
 
 	try {
 		session_ = std::make_unique<mysqlx::Session>(mysqlx::SessionSettings(host,
-												  	 port,
-													 username,
-													 password,
-													 databaseName));
+												  							 port,
+																			 username,
+																			 password,
+																			 databaseName));
 
 		spdlog::info("Database connection established successfully to {}:{} for database {}", host, port, databaseName);
 	}

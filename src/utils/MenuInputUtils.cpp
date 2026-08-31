@@ -25,7 +25,7 @@ namespace MenuInputUtils {
 	}
 
 	std::string readNonEmptyLine(const std::string& prompt,
-		const std::string& emptyMessage) {
+								 const std::string& emptyMessage) {
 		spdlog::debug("Reading non-empty text input from user");
 
 		std::string content;

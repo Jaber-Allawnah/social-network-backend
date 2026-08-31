@@ -9,8 +9,8 @@ using namespace PasswordUtils;
 UserService::UserService(UserRepository& userRepository) : userRepository_(userRepository) {}
 
 User UserService::registerUser(const std::string& username,
-    const std::string& email,
-    const std::string& password) {
+                               const std::string& email,
+                               const std::string& password) {
     spdlog::debug("Registering user with username {}", username);
 
     if (username.empty() || email.empty() || password.empty()) {
@@ -37,7 +37,7 @@ User UserService::registerUser(const std::string& username,
 }
 
 User UserService::login(const std::string& email,
-    const std::string& password) {
+                        const std::string& password) {
     spdlog::debug("Login attempt started");
 
     auto user = userRepository_.getByEmail(email);

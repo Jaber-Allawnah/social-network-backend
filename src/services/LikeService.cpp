@@ -43,7 +43,7 @@ bool LikeService::like(int requesterId, int postId) {
 
     bool liked = likeRepository_.like(requesterId, postId);
     if (liked) {
-        spdlog::info("User {} liked post {}", requesterId, postId);
+        spdlog::info("Like result for user {} on post {}: {}", requesterId, postId, liked);
     }
 
     return liked;
@@ -61,7 +61,7 @@ bool LikeService::unlike(int requesterId, int postId) {
 
     bool unliked = likeRepository_.unlike(requesterId, postId);
     if (unliked) {
-        spdlog::info("User {} unliked post {}", requesterId, postId);
+        spdlog::info("Unlike result for user {} on post {}: {}", requesterId, postId, unliked);
     }
 
     return unliked;

@@ -105,7 +105,7 @@ Comment CommentRepository::create(int userId, int postId, const std::string& con
             throw std::runtime_error("CommentRepository: Created comment could not be retrieved");
         }
 
-        spdlog::info("Comment {} created in database for user {} on post {}", commentId, userId, postId);
+        spdlog::debug("Comment {} created in database for user {} on post {}", commentId, userId, postId);
 
         return comment.value();
     }
@@ -129,7 +129,7 @@ bool CommentRepository::update(int commentId, const std::string& content) {
 
         bool updated = result.getAffectedItemsCount() > 0;
         if (updated) {
-            spdlog::info("Comment {} updated in database", commentId);
+            spdlog::debug("Comment {} update result in database: {}", commentId, updated);
         }
 
         return updated;
@@ -153,7 +153,7 @@ bool CommentRepository::remove(int commentId) {
 
         bool removed = result.getAffectedItemsCount() > 0;
         if (removed) {
-            spdlog::info("Comment {} removed from database", commentId);
+            spdlog::debug("Comment {} removal result in database: {}", commentId, removed);
         }
 
         return removed;

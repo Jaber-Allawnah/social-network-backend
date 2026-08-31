@@ -23,6 +23,7 @@
 #include "application/LoggedOutMenu.hpp"
 #include "application/LoggedInMenu.hpp"
 #include "application/Application.hpp"
+#include "utils/Logger.hpp"
 
 std::string getEnvironmentVariable(const char* name) {
     const char* value = std::getenv(name);
@@ -35,6 +36,8 @@ std::string getEnvironmentVariable(const char* name) {
 }
 
 int main() {
+    Logger::init();
+
     try {
         const std::string host = getEnvironmentVariable("DB_HOST");
         const unsigned port = static_cast<unsigned>(std::stoi(getEnvironmentVariable("DB_PORT")));

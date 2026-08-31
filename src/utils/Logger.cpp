@@ -10,7 +10,8 @@ namespace Logger {
 		auto logger = std::make_shared<spdlog::logger>("social_network", fileSink);
 
 		logger->set_level(spdlog::level::debug);
-		
+		logger->flush_on(spdlog::level::info);
+
 		spdlog::set_default_logger(logger);
 	}
 }
