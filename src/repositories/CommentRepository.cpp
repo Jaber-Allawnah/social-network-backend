@@ -128,10 +128,8 @@ bool CommentRepository::update(int commentId, const std::string& content) {
         mysqlx::SqlResult result = session.sql(sql).bind(content, commentId).execute();
 
         bool updated = result.getAffectedItemsCount() > 0;
-        if (updated) {
-            spdlog::debug("Comment {} update result in database: {}", commentId, updated);
-        }
-
+        spdlog::debug("Comment {} update result in database: {}", commentId, updated);
+        
         return updated;
     }
     catch (const mysqlx::Error& error) {
