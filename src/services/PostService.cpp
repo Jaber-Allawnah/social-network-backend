@@ -79,9 +79,7 @@ bool PostService::update(int postId, int requesterId, const std::string& content
 	}
 
 	bool updated = postRepository_.update(postId, content);
-	if (updated) {
-		spdlog::info("Post {} update result by user {}: {}", postId, requesterId, updated);
-	}
+	spdlog::info("Post {} update result by user {}: {}", postId, requesterId, updated);
 
 	return updated;
 }
@@ -92,10 +90,8 @@ bool PostService::remove(int postId, int requesterId) {
 	validatePostOwnership(postId, requesterId);
 
 	bool removed = postRepository_.remove(postId);
-	if (removed) {
-		spdlog::info("Post {} removal result by user {}: {}", postId, requesterId, removed);
-	}
-
+	spdlog::info("Post {} removal result by user {}: {}", postId, requesterId, removed);
+	
 	return removed;
 }
 

@@ -75,22 +75,18 @@ bool FollowService::sendFollowRequest(int requesterId, int receiverId) {
 			(followRequest.value().status == FollowRequestStatus::Rejected ||
 			 followRequest.value().status == FollowRequestStatus::Accepted)) {
 		bool updated = followRequestRepository_.update(followRequest.value().id, FollowRequestStatus::Pending);
-		if (updated) {
-			spdlog::info("Follow request {} reset-to-pending result from user {} to user {}: {}", 
-						 followRequest.value().id, 
-						 requesterId, 
-						 receiverId, 
-						 updated);
-		}
-
+		spdlog::info("Follow request {} reset-to-pending result from user {} to user {}: {}", 
+					 followRequest.value().id, 
+					 requesterId, 
+					 receiverId, 
+					 updated);
+		
 		return updated;
 	}
 
 	bool created = followRequestRepository_.create(requesterId, receiverId);
-	if (created) {
-		spdlog::info("Follow request creation result from user {} to user {}: {}", requesterId, receiverId, created);
-	}
-
+	spdlog::info("Follow request creation result from user {} to user {}: {}", requesterId, receiverId, created);
+	
 	return created;
 }
 
@@ -129,9 +125,7 @@ bool FollowService::rejectFollowRequest(int requestId, int receiverId) {
 	validatePendingRequest(requestId, receiverId);
 
 	bool rejected = followRequestRepository_.update(requestId, FollowRequestStatus::Rejected);
-	if (rejected) {
-		spdlog::info("Follow request {} rejection result by user {}: {}", requestId, receiverId, rejected);
-	}
+	spdlog::info("Follow request {} rejection result by user {}: {}", requestId, receiverId, rejected);
 
 	return rejected;
 }
@@ -157,9 +151,7 @@ bool FollowService::unfollow(int followerId, int followeeId) {
 	}
 
 	bool unfollowed = followRepository_.unfollow(followerId, followeeId);
-	if (unfollowed) {
-		spdlog::info("Unfollow result for user {} from user {}: {}", followerId, followeeId, unfollowed);
-	}
+	spdlog::info("Unfollow result for user {} from user {}: {}", followerId, followeeId, unfollowed);
 
 	return unfollowed;
 }

@@ -152,9 +152,8 @@ bool CommentRepository::remove(int commentId) {
         mysqlx::SqlResult result = session.sql(sql).bind(commentId).execute();
 
         bool removed = result.getAffectedItemsCount() > 0;
-        if (removed) {
-            spdlog::debug("Comment {} removal result in database: {}", commentId, removed);
-        }
+        spdlog::debug("Comment {} removal result in database: {}", commentId, removed);
+        
 
         return removed;
     }

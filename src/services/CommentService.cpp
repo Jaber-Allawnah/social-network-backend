@@ -80,9 +80,7 @@ bool CommentService::update(int userId, int commentId, int postId, const std::st
 	}
 
 	bool updated = commentRepository_.update(commentId, content);
-	if (updated) {
-		spdlog::info("Comment {} update result by user {}: {}", commentId, userId, updated);
-	}
+	spdlog::info("Comment {} update result by user {}: {}", commentId, userId, updated);
 
 	return updated;
 }
@@ -95,10 +93,8 @@ bool CommentService::remove(int userId, int commentId, int postId) {
 	validateUserPostsAccess(postId, userId);
 
 	bool removed = commentRepository_.remove(commentId);
-	if (removed) {
-		spdlog::info("Comment {} removal result by user {}: {}", commentId, userId, removed);
-	}
-
+	spdlog::info("Comment {} removal result by user {}: {}", commentId, userId, removed);
+	
 	return removed;
 }
 
