@@ -79,3 +79,30 @@ TEST_F(FollowServiceTest, RejectFollowRequestSuccessfully) {
 	bool result = followService.rejectFollowRequest(1, 2);
 	EXPECT_TRUE(result);
 }
+
+TEST_F(FollowServiceTest, AcceptFollowRequestFailedUpdate) {
+	FollowRequest followRequest{1, 1, 2, FollowRequestStatus::Pending};
+
+	EXPECT_CALL(mockUserRepository, getById(2)).WillOnce(Return(receiver));
+	EXPECT_CALL(mockFollowRequestRepository, getById(1)).WillOnce(Return(followRequest));
+	EXPECT_CALL(mockFollowRequestRepository, update(1, FollowRequestStatus::Accepted)).WillOnce(Return(false));
+	EXPECT_CALL(mockTransactionManager, begin()).Times(1);
+	EXPECT_CALL(mockTransactionManager, commit()).Times(0);
+	EXPECT_CALL(mockTransactionManager, rollback()).Times(1);
+
+	EXPECT_THROW(followService.acceptFollowRequest(1, 2), std::runtime_error);
+}
+
+TEST_F(FollowServiceTest, AcceptFollowRequestFailedFollow) {
+	FollowRequest followRequest{1, 1, 2, FollowRequestStatus::Pending};
+
+	EXPECT_CALL(mockUserRepository, getById(2)).WillOnce(Return(receiver));
+	EXPECT_CALL(mockFollowRequestRepository, getById(1)).WillOnce(Return(followRequest));
+	EXPECT_CALL(mockFollowRequestRepository, update(1, FollowRequestStatus::Accepted)).WillOnce(Return(true));
+	EXPECT_CALL(mockFollowRepository, follow(1, 2)).WillOnce(Return(false));
+	EXPECT_CALL(mockTransactionManager, begin()).Times(1);
+	EXPECT_CALL(mockTransactionManager, commit()).Times(0);
+	EXPECT_CALL(mockTransactionManager, rollback()).Times(1);
+
+	EXPECT_THROW(followService.acceptFollowRequest(1, 2), std::runtime_error);
+}

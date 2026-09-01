@@ -78,3 +78,13 @@ TEST_F(PostServiceTest, RemoveThrowsWhenUserDoesNotOwnPost) {
     
     EXPECT_THROW(postService.remove(10, 2), std::runtime_error);
 }
+
+TEST_F(PostServiceTest, RemoveThrowsWhenPostDoesNotExist) {
+    User anotherUser{ 2, "Raghad", "raghad@example.com", "hashed_password" };
+
+    EXPECT_CALL(mockUserRepository, getById(2)).WillOnce(Return(anotherUser));
+    EXPECT_CALL(mockPostRepository, getById(12)).WillOnce(Return(std::nullopt));
+    EXPECT_CALL(mockPostRepository, remove(_)).Times(0);
+
+    EXPECT_THROW(postService.remove(12, 2), std::runtime_error);
+}
