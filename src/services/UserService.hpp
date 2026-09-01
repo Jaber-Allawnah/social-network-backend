@@ -11,6 +11,7 @@ public:
 	User registerUser(const std::string& username,
                       const std::string& email,
                       const std::string& password);
+
     User login(const std::string& email,
                const std::string& password);
 };

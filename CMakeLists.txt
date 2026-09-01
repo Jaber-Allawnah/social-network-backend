@@ -35,6 +35,11 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(googletest)
 
+
+# =========================================
+# Main application
+# =========================================
+
 add_executable(social_network_backend
     src/main.cpp
 
@@ -70,7 +75,8 @@ add_executable(social_network_backend
     src/application/menu/CommentMenu.cpp
     src/application/menu/LikeMenu.cpp
     src/application/menu/FollowMenu.cpp
-    src/application/menu/ConnectionMenu.cpp)
+    src/application/menu/ConnectionMenu.cpp
+)
 
 target_include_directories(social_network_backend
     PRIVATE
@@ -113,6 +119,11 @@ add_custom_command(
         "$<TARGET_FILE_DIR:social_network_backend>"
 )
 
+
+# =========================================
+# Unit tests
+# =========================================
+
 enable_testing()
 
 add_executable(service_tests
@@ -122,16 +133,27 @@ add_executable(service_tests
     tests/services/FollowServiceTest.cpp
     tests/services/LikeServiceTest.cpp
     tests/services/CommentServiceTest.cpp
+    tests/services/UserServiceTest.cpp
 
     src/services/PostService.cpp
     src/services/FollowService.cpp
     src/services/LikeService.cpp
     src/services/CommentService.cpp
+    src/services/UserService.cpp
+
+    src/utils/PasswordHasher.cpp
 )
-    
+
 target_include_directories(service_tests
     PRIVATE
         "${SPDLOG_ROOT}/include"
+        "${LIBSODIUM_ROOT}/include"
+)
+
+target_compile_definitions(service_tests
+    PRIVATE
+        SODIUM_STATIC=1
+        SODIUM_EXPORT=
 )
 
 target_compile_options(service_tests
@@ -144,6 +166,7 @@ target_link_libraries(service_tests
         GTest::gtest
         GTest::gmock
         GTest::gtest_main
+        "${LIBSODIUM_ROOT}/x64/Release/v143/static/libsodium.lib"
 )
 
 include(GoogleTest)
