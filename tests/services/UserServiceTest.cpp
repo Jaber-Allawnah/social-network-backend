@@ -18,7 +18,7 @@ protected:
 	User user{ 1, "Jaber", "jaber@example.com", "hashed_password" };
 };
 
-TEST_F(UserServiceTest, TestSuccessfulRegistration) {
+TEST_F(UserServiceTest, RegisterUserSuccessfully) {
 	EXPECT_CALL(mockUserRepository, getByEmail("jaber@example.com")).WillOnce(Return(std::nullopt));
 	EXPECT_CALL(mockUserRepository, getByUsername("Jaber")).WillOnce(Return(std::nullopt));
 	EXPECT_CALL(mockUserRepository, create("Jaber", "jaber@example.com", _)).WillOnce(Return(user));
@@ -30,7 +30,7 @@ TEST_F(UserServiceTest, TestSuccessfulRegistration) {
 	EXPECT_EQ(result.passwordHash, user.passwordHash);
 }
 
-TEST_F(UserServiceTest, TestFailedRegistrationExistingUsername) {
+TEST_F(UserServiceTest, RegisterThrowsWhenUsernameAlreadyExists) {
 	EXPECT_CALL(mockUserRepository, getByEmail("jaber@example.com")).WillOnce(Return(std::nullopt));
 	EXPECT_CALL(mockUserRepository, getByUsername("Jaber")).WillOnce(Return(user));
 	EXPECT_CALL(mockUserRepository, create(_, _, _)).Times(0);
@@ -38,14 +38,14 @@ TEST_F(UserServiceTest, TestFailedRegistrationExistingUsername) {
 	EXPECT_THROW(userService.registerUser("Jaber", "jaber@example.com", "1234567"), std::runtime_error);
 }
 
-TEST_F(UserServiceTest, TestFailedRegistrationExistingEmail) {
+TEST_F(UserServiceTest, RegisterThrowsWhenEmailAlreadyExists) {
 	EXPECT_CALL(mockUserRepository, getByEmail("jaber@example.com")).WillOnce(Return(user));
 	EXPECT_CALL(mockUserRepository, create(_, _, _)).Times(0);
 
 	EXPECT_THROW(userService.registerUser("Jaber", "jaber@example.com", "1234567"), std::runtime_error);
 }
 
-TEST_F(UserServiceTest, TestSuccessfulLogin) {
+TEST_F(UserServiceTest, LoginSuccessfully) {
 	std::string password = "1234567";
 	std::string hashedPassword = hashPassword(password);
 	User user{ 1, "Jaber", "jaber@example.com", hashedPassword };
@@ -59,17 +59,18 @@ TEST_F(UserServiceTest, TestSuccessfulLogin) {
 	EXPECT_EQ(result.passwordHash, user.passwordHash);
 }
 
-TEST_F(UserServiceTest, TestFailedLoginNonExistingUser) {
+TEST_F(UserServiceTest, LoginThrowsWhenUserDoesNotExist) {
 	EXPECT_CALL(mockUserRepository, getByEmail("jaber@example.com")).WillOnce(Return(std::nullopt));
 	
 	EXPECT_THROW(userService.login("jaber@example.com", "12345678"), std::runtime_error);
 }
 
-TEST_F(UserServiceTest, TestFailedLoginWrongPassword) {
+TEST_F(UserServiceTest, LoginThrowsWhenPasswordIsIncorrect) {
 	std::string password = "1234567";
 	std::string hashedPassword = hashPassword(password);
+	const std::string wrongPassword = "12345678";
 	User user{ 1, "Jaber", "jaber@example.com", hashedPassword };
 
 	EXPECT_CALL(mockUserRepository, getByEmail("jaber@example.com")).WillOnce(Return(user));
-	EXPECT_THROW(userService.login("jaber@example.com", "12345678"), std::runtime_error);
+	EXPECT_THROW(userService.login("jaber@example.com", wrongPassword), std::runtime_error);
 }
