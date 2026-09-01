@@ -1,10 +1,10 @@
 #include "CommentService.hpp"
 #include <spdlog/spdlog.h>
 
-CommentService::CommentService(CommentRepository& commentRepository,
-							   PostRepository& postRepository,
-							   FollowRepository& followRepository,
-							   UserRepository& userRepository)
+CommentService::CommentService(ICommentRepository& commentRepository,
+							   IPostRepository& postRepository,
+							   IFollowRepository& followRepository,
+							   IUserRepository& userRepository)
 							:  commentRepository_(commentRepository),
 							   postRepository_(postRepository),
 							   followRepository_(followRepository),

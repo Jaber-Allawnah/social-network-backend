@@ -1,10 +1,10 @@
 #include "LikeService.hpp"
 #include <spdlog/spdlog.h>
 
-LikeService::LikeService(LikeRepository& likeRepository,
-                         FollowRepository& followRepository,
-                         PostRepository& postRepository,
-                         UserRepository& userRepository)
+LikeService::LikeService(ILikeRepository& likeRepository,
+                         IFollowRepository& followRepository,
+                         IPostRepository& postRepository,
+                         IUserRepository& userRepository)
                      :   likeRepository_(likeRepository),
                          followRepository_(followRepository),
                          postRepository_(postRepository),

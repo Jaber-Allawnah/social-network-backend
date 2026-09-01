@@ -1,14 +1,14 @@
 #include "FollowService.hpp"
 #include <spdlog/spdlog.h>
 
-FollowService::FollowService(FollowRepository& followRepository,
-							 FollowRequestRepository& followRequestRepository,
-							 UserRepository& userRepository,
-							 Database& database)
+FollowService::FollowService(IFollowRepository& followRepository,
+							 IFollowRequestRepository& followRequestRepository,
+							 IUserRepository& userRepository,
+							 ITransactionManager& transactionManager)
 						  :  followRepository_(followRepository),
 							 followRequestRepository_(followRequestRepository),
 							 userRepository_(userRepository),
-							 database_(database) {}
+							 transactionManager_(transactionManager) {}
 
 FollowRequest FollowService::validatePendingRequest(int requestId, int receiverId) {
 	auto receiver = userRepository_.getById(receiverId);
@@ -95,8 +95,7 @@ bool FollowService::acceptFollowRequest(int requestId, int receiverId) {
 
 	FollowRequest followRequest = validatePendingRequest(requestId, receiverId);
 
-	mysqlx::Session& session = database_.getSession();
-	session.startTransaction();
+	transactionManager_.begin();
 	try {
 		bool isRequestUpdated = followRequestRepository_.update(requestId, FollowRequestStatus::Accepted);
 		if (!isRequestUpdated) {
@@ -108,12 +107,12 @@ bool FollowService::acceptFollowRequest(int requestId, int receiverId) {
 			throw std::runtime_error("FollowService: Failed to create follow relationship");
 		}
 
-		session.commit();
+		transactionManager_.commit();
 		spdlog::info("Follow request {} accepted by user {}; user {} now follows user {}", requestId, receiverId, followRequest.requesterId, receiverId);
 		return true;
 	}
 	catch (...) {
-		session.rollback();
+		transactionManager_.rollback();
 		spdlog::error("Failed to accept follow request {}; transaction rolled back", requestId);
 		throw;
 	}

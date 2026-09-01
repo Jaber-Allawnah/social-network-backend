@@ -2,13 +2,12 @@
 #include <stdexcept>
 #include <spdlog/spdlog.h>
 
-PostService::PostService(PostRepository& postRepository,
-						 FollowRepository& followRepository,
-						 UserRepository& userRepository)
+PostService::PostService(IPostRepository& postRepository,
+						 IFollowRepository& followRepository,
+						 IUserRepository& userRepository)
 					:    postRepository_(postRepository),
 						 followRepository_(followRepository),
-						 userRepository_(userRepository) {
-}
+						 userRepository_(userRepository) {}
 
 void PostService::validatePostOwnership(int postId, int requesterId) {
 	auto user = userRepository_.getById(requesterId);

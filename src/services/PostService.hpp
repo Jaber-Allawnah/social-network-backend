@@ -1,22 +1,22 @@
 #pragma once
 
-#include "../repositories/PostRepository.hpp"
-#include "../repositories/FollowRepository.hpp"
-#include "../repositories/UserRepository.hpp"
+#include "../repositories/IPostRepository.hpp"
+#include "../repositories/IUserRepository.hpp"
+#include "../repositories/IFollowRepository.hpp"
 
 class PostService {
 private:
-	PostRepository& postRepository_;
-	FollowRepository& followRepository_;
-	UserRepository& userRepository_;
+	IPostRepository& postRepository_;
+	IFollowRepository& followRepository_;
+	IUserRepository& userRepository_;
 
 	void validatePostOwnership(int postId, int requesterId);
 	void validateUserPostsAccess(int ownerId, int requesterId);
 
 public:
-	PostService(PostRepository& postRepository, 
-				FollowRepository& followRepository, 
-				UserRepository& userRepository);
+	PostService(IPostRepository& postRepository,
+				IFollowRepository& followRepository,
+			    IUserRepository& userRepository);
 
 	Post create(int userId, const std::string& content);
 	bool update(int postId, int requesterId, const std::string& content);
