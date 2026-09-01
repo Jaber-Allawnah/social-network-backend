@@ -370,6 +370,4 @@ The project applies several software-engineering practices:
 - **Dependency injection** — repository abstractions are injected into services, enabling isolation and mocking during tests.
 - **Centralised logging** — important application events and failures are recorded consistently.
 
-## License
 
-This project was developed as an educational backend project. Add a licence file if you intend to distribute or reuse it publicly.
