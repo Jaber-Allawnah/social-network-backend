@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../models/Post.hpp"
+#include "IPostRepository.hpp"
 #include "../database/Database.hpp"
 #include <mysqlx/xdevapi.h>
 #include <optional>
@@ -8,7 +8,7 @@
 #include <string>
 
 
-class PostRepository {
+class PostRepository : public IPostRepository{
 private:
 	Database& database_;
 
@@ -17,12 +17,12 @@ private:
 public:
 	PostRepository(Database& database);
 
-	std::optional<Post> getById(int postId);
-	std::vector<Post> getByUserId(int userId);
-	std::vector<Post> searchUserPosts(int userId, const std::string& content);
-	std::vector<Post> getUserFeed(int userId);
+	std::optional<Post> getById(int postId) override;
+	std::vector<Post> getByUserId(int userId) override;
+	std::vector<Post> searchUserPosts(int userId, const std::string& content) override;
+	std::vector<Post> getUserFeed(int userId) override;
 
-	Post create(int userId, const std::string& content);
-	bool update(int postId, const std::string& content);
-	bool remove(int postId);
+	Post create(int userId, const std::string& content) override;
+	bool update(int postId, const std::string& content) override ;
+	bool remove(int postId) override;
 };

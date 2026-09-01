@@ -2,11 +2,12 @@
 
 #include "../database/Database.hpp"
 #include "../models/Comment.hpp"
+#include "./ICommentRepository.hpp"
 #include <vector>
 #include <optional>
 #include <mysqlx/xdevapi.h>
 
-class CommentRepository {
+class CommentRepository : public ICommentRepository {
 private:
 	Database& database_;
 
@@ -15,10 +16,10 @@ private:
 public:
 	CommentRepository(Database& database);
 
-	std::vector<Comment> getByPostId(int postId);
-	std::optional<Comment> getById(int commentId);
+	std::vector<Comment> getByPostId(int postId) override;
+	std::optional<Comment> getById(int commentId) override;
 
-    Comment create(int userId, int postId, const std::string& content);
-	bool update(int commentId, const std::string& content);
-	bool remove(int commentId);
+    Comment create(int userId, int postId, const std::string& content) override;
+	bool update(int commentId, const std::string& content) override;
+	bool remove(int commentId) override;
 };

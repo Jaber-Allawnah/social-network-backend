@@ -1,26 +1,26 @@
 #pragma once
 
-#include "../repositories/CommentRepository.hpp"
-#include "../repositories/PostRepository.hpp"
-#include "../repositories/FollowRepository.hpp"
-#include "../repositories/UserRepository.hpp"
+#include "../repositories/ICommentRepository.hpp"
+#include "../repositories/IPostRepository.hpp"
+#include "../repositories/IFollowRepository.hpp"
+#include "../repositories/IUserRepository.hpp"
 
 class CommentService {
 private:
-	CommentRepository& commentRepository_;
-	PostRepository& postRepository_;
-	FollowRepository& followRepository_;
-	UserRepository& userRepository_;
+	ICommentRepository& commentRepository_;
+	IPostRepository& postRepository_;
+	IFollowRepository& followRepository_;
+	IUserRepository& userRepository_;
 
 	void validateCommentOwnership(int commentId, int userId, int postId);
 	void validateUserPostsAccess(int postId, int userId);
 	void validateUserExists(int userId);
 
 public:
-	CommentService(CommentRepository& commentRepository, 
-		   		   PostRepository& postRepository, 
-				   FollowRepository& followRepository,
-				   UserRepository& userRepository);
+	CommentService(ICommentRepository& commentRepository,
+				   IPostRepository& postRepository,
+				   IFollowRepository& followRepository,
+				   IUserRepository& userRepository);
 
 	Comment create(int userId, int postId, const std::string& content);
 	bool update(int userId, int commentId, int postId, const std::string& content);

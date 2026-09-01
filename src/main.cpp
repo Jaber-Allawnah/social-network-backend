@@ -24,6 +24,7 @@
 #include "application/LoggedInMenu.hpp"
 #include "application/Application.hpp"
 #include "utils/Logger.hpp"
+#include "database/TransactionManager.hpp"
 
 std::string getEnvironmentVariable(const char* name) {
     const char* value = std::getenv(name);
@@ -51,6 +52,8 @@ int main() {
                           username,
                           password,
                           databaseName);
+        // Transaction Managet
+        TransactionManager transactionManager(database);
 
         // Repositories
         UserRepository userRepository(database);
@@ -80,7 +83,7 @@ int main() {
         FollowService followService(followRepository,
                                     followRequestRepository,
                                     userRepository,
-                                    database);
+                                    transactionManager);
 
         // Menus
         PostMenu postMenu(postService);

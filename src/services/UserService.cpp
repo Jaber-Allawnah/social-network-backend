@@ -6,7 +6,7 @@
 
 using namespace PasswordUtils;
 
-UserService::UserService(UserRepository& userRepository) : userRepository_(userRepository) {}
+UserService::UserService(IUserRepository& userRepository) : userRepository_(userRepository) {}
 
 User UserService::registerUser(const std::string& username,
                                const std::string& email,

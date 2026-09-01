@@ -1,24 +1,24 @@
 #pragma once
 
-#include "../repositories/FollowRepository.hpp"
-#include "../repositories/FollowRequestRepository.hpp"
-#include "../repositories/UserRepository.hpp"
-#include "../database/Database.hpp"
+#include "../repositories/IFollowRepository.hpp"
+#include "../repositories/IFollowRequestRepository.hpp"
+#include "../repositories/IUserRepository.hpp"
+#include "../database/ITransactionManager.hpp"
 
 class FollowService {
 private:
-	FollowRepository& followRepository_;
-	FollowRequestRepository& followRequestRepository_;
-	UserRepository& userRepository_;
-	Database& database_;
+	IFollowRepository& followRepository_;
+	IFollowRequestRepository& followRequestRepository_;
+	IUserRepository& userRepository_;
+	ITransactionManager& transactionManager_;
 
 	FollowRequest validatePendingRequest(int requestId, int receiverId);
 
 public:
-	FollowService(FollowRepository& followRepository,
-			      FollowRequestRepository& followRequestRepository,
-				  UserRepository& userRepository,
-				  Database& database);
+	FollowService(IFollowRepository& followRepository,
+			      IFollowRequestRepository& followRequestRepository,
+				  IUserRepository& userRepository,
+				  ITransactionManager& transactionManager);
 
 	bool sendFollowRequest(int requesterId, int receiverId);
 	bool acceptFollowRequest(int requestId, int receiverId);

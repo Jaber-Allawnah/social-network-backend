@@ -24,9 +24,27 @@ set(
     CACHE PATH "Path to spdlog installation"
 )
 
+include(FetchContent)
+
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip
+)
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(googletest)
+
+
+# =========================================
+# Main application
+# =========================================
+
 add_executable(social_network_backend
     src/main.cpp
+
     src/database/Database.cpp
+    src/database/TransactionManager.cpp
 
     src/repositories/UserRepository.cpp
     src/repositories/PostRepository.cpp
@@ -100,3 +118,57 @@ add_custom_command(
         "${MYSQL_CONCPP_ROOT}/lib64/libcrypto-3-x64.dll"
         "$<TARGET_FILE_DIR:social_network_backend>"
 )
+
+
+# =========================================
+# Unit tests
+# =========================================
+
+enable_testing()
+
+add_executable(service_tests
+    tests/TestMain.cpp
+
+    tests/services/PostServiceTest.cpp
+    tests/services/FollowServiceTest.cpp
+    tests/services/LikeServiceTest.cpp
+    tests/services/CommentServiceTest.cpp
+    tests/services/UserServiceTest.cpp
+
+    src/services/PostService.cpp
+    src/services/FollowService.cpp
+    src/services/LikeService.cpp
+    src/services/CommentService.cpp
+    src/services/UserService.cpp
+
+    src/utils/PasswordHasher.cpp
+)
+
+target_include_directories(service_tests
+    PRIVATE
+        "${SPDLOG_ROOT}/include"
+        "${LIBSODIUM_ROOT}/include"
+)
+
+target_compile_definitions(service_tests
+    PRIVATE
+        SODIUM_STATIC=1
+        SODIUM_EXPORT=
+)
+
+target_compile_options(service_tests
+    PRIVATE
+        /utf-8
+)
+
+target_link_libraries(service_tests
+    PRIVATE
+        GTest::gtest
+        GTest::gmock
+        GTest::gtest_main
+        "${LIBSODIUM_ROOT}/x64/Release/v143/static/libsodium.lib"
+)
+
+include(GoogleTest)
+
+gtest_discover_tests(service_tests)
